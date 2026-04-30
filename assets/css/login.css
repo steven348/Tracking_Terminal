@@ -1,0 +1,506 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* VIDEO DE FONDO - RESPONSIVE Y FULLSCREEN CON FILTRO AZUL MEJORADO */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.video-background video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    transition: opacity 0.5s ease;
+}
+
+/* Overlay con múltiples capas para armonía cromática perfecta */
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Capa 1: Degradado azul profundo dominante */
+.video-overlay::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(21, 91, 162, 0.88) 0%,
+        rgba(22, 103, 184, 0.8) 10%,
+        rgba(0, 194, 199, 0.2) 20%,
+        rgba(7, 26, 45, 0.85) 300%);
+    z-index: 1;
+}
+
+/* Capa 2: Filtro azul adicional multiplicado */
+.video-overlay::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(21, 85, 148, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 2;
+    mix-blend-mode: multiply;
+}
+
+/* Capa 3: Toque de acento cian con radial gradient */
+.video-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, 
+        rgba(0, 192, 199, 0.391) 0%, 
+        rgba(0, 194, 199, 0.05) 40%,
+        rgba(7, 26, 45, 0.5) 100%);
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* Contenedor principal del login */
+.login-wrapper {
+    width: 100%;
+    max-width: 500px;
+    z-index: 10;
+    position: relative;
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tarjeta semitransparente */
+.glass-card {
+    background: rgba(14, 47, 79, 0.75);
+    backdrop-filter: blur(12px);
+    border-radius: 2rem;
+    padding: 2rem 1.8rem;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 194, 199, 0.3);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 194, 199, 0.4);
+}
+
+/* NUEVO: BRAND HORIZONTAL (logo + texto alineados) */
+.brand-horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Contenedor del logo */
+.logo-container {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    max-width: 70px;
+    width: auto;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+    border-radius: 16px;
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
+}
+
+/* Contenedor del texto */
+.brand-text {
+    text-align: left;
+}
+
+.brand-text h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #FFFFFF 30%, #3AD1D6 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+}
+
+.brand-text h1 span {
+    background: linear-gradient(135deg, #00C2C7, #FFFFFF);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 800;
+}
+
+.brand-text p {
+    color: #e0f0ff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+}
+
+.brand-text p i {
+    font-size: 0.7rem;
+}
+
+/* Grupos de inputs */
+.input-field {
+    position: relative;
+    margin-bottom: 1.8rem;
+}
+
+.input-field i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #00C2C7;
+    font-size: 1.2rem;
+    transition: 0.2s;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.input-field input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(58, 209, 214, 0.5);
+    border-radius: 60px;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.25s ease;
+    outline: none;
+    backdrop-filter: blur(4px);
+}
+
+.input-field input:focus {
+    border-color: #00C2C7;
+    background: rgba(0, 194, 199, 0.15);
+    box-shadow: 0 0 0 3px rgba(0, 194, 199, 0.3);
+}
+
+.input-field input:focus + i {
+    color: #3AD1D6;
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Label flotante */
+.input-field label {
+    position: absolute;
+    left: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #cde4fc;
+    font-size: 0.95rem;
+    font-weight: 400;
+    pointer-events: none;
+    transition: 0.2s ease;
+    background: transparent;
+    padding: 0 5px;
+    z-index: 1;
+}
+
+.input-field input:focus ~ label,
+.input-field input:not(:placeholder-shown) ~ label {
+    top: 0px;
+    left: 2.5rem;
+    font-size: 0.7rem;
+    background: #0E2F4F;
+    padding: 0 8px;
+    border-radius: 30px;
+    color: #3AD1D6;
+    transform: translateY(-50%);
+    font-weight: 600;
+}
+
+.input-field input::placeholder {
+    color: transparent;
+}
+
+/* Botón principal */
+.btn-login {
+    width: 100%;
+    background: linear-gradient(95deg, #00C2C7, #3AD1D6);
+    border: none;
+    border-radius: 60px;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    color: #071A2D;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0, 194, 199, 0.3);
+}
+
+.btn-login i {
+    font-size: 1.1rem;
+    transition: transform 0.2s;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(95deg, #3AD1D6, #00C2C7);
+    box-shadow: 0 12px 28px rgba(0, 194, 199, 0.5);
+}
+
+.btn-login:active {
+    transform: translateY(1px);
+}
+
+/* Links inferiores */
+.links-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 0.5rem;
+}
+
+.links-row a {
+    color: #e0f0ff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.9;
+}
+
+.links-row a i {
+    font-size: 0.8rem;
+    color: #00C2C7;
+}
+
+.links-row a:hover {
+    color: #3AD1D6;
+    opacity: 1;
+    text-decoration: underline;
+}
+
+/* Elementos decorativos */
+.deco-dot {
+    position: fixed;
+    background: rgba(0, 194, 199, 0.15);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    filter: blur(40px);
+}
+
+.deco-dot-1 {
+    width: 280px;
+    height: 280px;
+    top: -100px;
+    left: -80px;
+    background: #00C2C7;
+    opacity: 0.25;
+}
+
+.deco-dot-2 {
+    width: 350px;
+    height: 350px;
+    bottom: -120px;
+    right: -100px;
+    background: #3AD1D6;
+    opacity: 0.2;
+}
+
+.deco-dot-3 {
+    width: 180px;
+    height: 180px;
+    left: 30%;
+    bottom: 10%;
+    background: #0E2F4F;
+    opacity: 0.35;
+    filter: blur(50px);
+}
+
+/* Línea tipo terminal */
+.tracking-element {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    font-size: 0.7rem;
+    font-family: monospace;
+    color: rgba(58, 209, 214, 0.9);
+    background: rgba(7, 26, 45, 0.7);
+    padding: 6px 12px;
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    z-index: 20;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.tracking-element i {
+    margin-right: 6px;
+}
+
+/* Responsive */
+@media (max-width: 550px) {
+    .glass-card {
+        padding: 1.5rem 1.2rem;
+    }
+    
+    /* En móviles pequeños, el logo se pone arriba del texto (columna) */
+    .brand-horizontal {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.8rem;
+    }
+    
+    .brand-text {
+        text-align: center;
+    }
+    
+    .brand-text p {
+        justify-content: center;
+    }
+    
+    .logo-img {
+        max-width: 60px;
+    }
+    
+    .brand-text h1 {
+        font-size: 1.8rem;
+    }
+    
+    .brand-text p {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .glass-card {
+        padding: 1.8rem 1.5rem;
+        margin: 0 0.5rem;
+    }
+    .btn-login {
+        padding: 0.8rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .brand-text h1 {
+        font-size: 1.6rem;
+    }
+    .input-field input {
+        padding: 0.85rem 1rem 0.85rem 3rem;
+        font-size: 0.9rem;
+    }
+    .links-row a {
+        font-size: 0.7rem;
+    }
+    .tracking-element {
+        font-size: 0.6rem;
+        bottom: 12px;
+        left: 12px;
+    }
+}
+
+@media (max-width: 400px) {
+    .links-row {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    .links-row a {
+        justify-content: center;
+    }
+}
+
+/* Estado de carga */
+.btn-login.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Autocompletado */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
+    -webkit-text-fill-color: #FFFFFF;
+}
+
+/* Safe areas para móviles */
+@supports (padding: max(0px)) {
+    .login-wrapper {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+    .tracking-element {
+        bottom: max(20px, env(safe-area-inset-bottom));
+        left: max(20px, env(safe-area-inset-left));
+    }
+}
+
+/* Manejo de error de imagen del logo */
+.logo-img {
+    background: rgba(255, 255, 255, 0.05);
+}
