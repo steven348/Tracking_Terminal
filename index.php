@@ -58,9 +58,9 @@
                     <label for="password">Contraseña</label>
                 </div>
 
-                <button type="submit" class="btn-login" id="loginBtn">
+                <button type="button" class="btn-login" id="loginBtn" onclick="location.href='/TRACKING_TERMINAL/views/layouts/menu_general.php'">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>Ingresar al Sistema</span>
+                    <span>Ingresar</span>
                 </button>
                 
                 <div class="links-row">
@@ -75,6 +75,5 @@
         <i class="fas fa-satellite-dish"></i> TERMINAL ONLINE · SEGUIMIENTO ACTIVO
     </div>
 
-    <script src="/TRACKING_TERMINAL/assets/js/login.js"></script>
 </body>
 </html>

@@ -1,0 +1,271 @@
+/* ===========================================================
+   PALETA DE COLORES - BUSITO SV
+   =========================================================== */
+:root {
+    --bg-dark: #071A2D;
+    --bg-panel: #0E2F4F;
+    --accent-primary: #00C2C7; /* Tu color principal */
+    --accent-secondary: #3AD1D6;
+    --text-white: #FFFFFF;
+    --text-muted: #A0B3C6; 
+    --card-bg: #1C1C1C;
+}
+
+/* ===========================================================
+   ESTRUCTURA GENERAL Y TIPOGRAFÍA
+   =========================================================== */
+.tracking-admin {
+    margin: 0;
+    height: 100vh;
+    background: var(--bg-dark);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+    color: var(--text-white);
+}
+
+.admin-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+}
+
+/* Clases de utilidad para texto */
+.text-white { color: var(--text-white) !important; }
+.text-light { color: var(--text-muted) !important; }
+
+.label-light { 
+    color: var(--accent-secondary) !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    display: block;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+/* ===========================================================
+   SIDEBAR (SEPARACIÓN Y CONTENIDO)
+   =========================================================== */
+.admin-sidebar {
+    background: var(--bg-dark);
+    border-right: 1px solid var(--bg-panel);
+    padding: 35px 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenedor de separación solicitado */
+.sidebar-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Separación amplia entre secciones */
+    margin-top: 30px;
+    flex-grow: 1;
+}
+
+.sidebar-header .logo { 
+    color: var(--text-white); 
+    font-size: 1.4rem; 
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-header .subtitle { 
+    color: var(--text-muted); 
+    font-size: 0.85rem; 
+    margin-top: 5px;
+}
+
+/* ===========================================================
+   CONTROLES (SELECT Y COLOR PICKER)
+   =========================================================== */
+.custom-select {
+    background: var(--bg-panel);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.custom-select select {
+    background: none;
+    border: none;
+    color: white;
+    width: 100%;
+    outline: none;
+    font-weight: 500;
+}
+
+.color-picker-wrapper {
+    background: var(--bg-panel);
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+input[type="color"] {
+    border: none;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    background: none;
+}
+
+/* ===========================================================
+   LISTA DE RUTAS, COUNT Y BADGES (CORREGIDO)
+   =========================================================== */
+.active-routes-list .list-header {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+/* Color corregido para el span count */
+.active-routes-list .count {
+    color: var(--accent-primary) !important;
+    font-weight: bold;
+}
+
+.route-item {
+    background: var(--card-bg);
+    border: 1px solid transparent;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.route-item.active {
+    border-color: var(--accent-primary);
+    background: rgba(0, 194, 199, 0.05);
+}
+
+.route-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.route-details .code { font-weight: bold; display: block; }
+.route-details .dest { font-size: 0.85rem; }
+
+/* Badges corregidos con color #00C2C7 */
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    margin-left: auto;
+    border: 1px solid var(--accent-primary);
+    background: rgba(0, 194, 199, 0.1);
+}
+
+.badge.on-time, .badge.delayed {
+    color: var(--accent-primary) !important;
+}
+
+/* ===========================================================
+   MAPA E ICONOS DE SEGUIMIENTO
+   =========================================================== */
+.map-viewport { position: relative; border-left: 2px solid var(--bg-panel); }
+#map-tracking { height: 100%; width: 100%; background: #000; }
+
+.bus-icon-div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-dark);
+    border: 2px solid var(--accent-primary);
+    border-radius: 50%;
+    color: var(--accent-primary);
+    box-shadow: 0 0 15px var(--accent-primary);
+}
+
+.dest-icon-div {
+    color: #FF4757;
+    font-size: 28px;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
+}
+
+/* ===========================================================
+   OVERLAYS Y ANIMACIÓN LIVE TRACKING (PUNTITO)
+   =========================================================== */
+.map-overlay-top {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 15px;
+}
+
+.status-pill, .time-pill {
+    background: #1C1C1C;
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--accent-primary);
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* El punto de Live Tracking */
+.dot.pulse {
+    width: 10px;
+    height: 10px;
+    background: #2ecc71; /* Verde activo */
+    border-radius: 50%;
+    position: relative;
+}
+
+/* Animación de pulso para el punto activo */
+.dot.pulse::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #2ecc71;
+    border-radius: 50%;
+    animation: live-pulse 2s infinite;
+}
+
+@keyframes live-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ===========================================================
+   FOOTER Y BOTONES
+   =========================================================== */
+.sidebar-footer {
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.btn-back {
+    color: var(--accent-secondary);
+    text-decoration: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-back:hover {
+    color: var(--text-white);
+    transform: translateX(-5px);
+    transition: 0.3s;
+}
