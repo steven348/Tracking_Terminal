@@ -59,7 +59,7 @@
             
             <span class="card__price">Historial</span>
             
-            <h1 class="card__title">CREAR TRACKINGS</h1>
+            <h1 class="card__title">VER TRACKINGS</h1>
             <p class="card__subtitle">
                 Consultar los trackings y estado actual de todas las unidades activas.<br>
                 detalles, analisis y comentarios sobre el trackeo.
