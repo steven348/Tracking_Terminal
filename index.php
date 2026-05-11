@@ -5,35 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Busito SV | Login</title>
     <!-- Fuentes y estilos base -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <!-- Font Awesome 6 para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- CSS principal -->
+    <!-- CSS principal - RUTA ORIGINAL -->
     <link rel="stylesheet" href="/TRACKING_TERMINAL/assets/css/login.css">
 </head>
 <body>
 
-    <!-- VIDEO DE FONDO CON FILTRO AZUL ARMONIOSO -->
-    <div class="video-background">
-        <video autoplay muted loop playsinline id="bgVideo">
-            <source src="/TRACKING_TERMINAL/assets/img/video/busespelea.mp4" type="video/mp4">
-            Tu navegador no soporta videos HTML5.
-        </video>
-        <div class="video-overlay"></div>
-        <div class="video-accent"></div>
-        <!-- Botón de control de sonido -->
-        <button class="sound-toggle" id="soundToggle" aria-label="Activar/desactivar sonido">
-            <i class="fas fa-volume-mute"></i>
-        </button>
-    </div>
-
-    <!-- Decoración adicional -->
-    <div class="deco-dot deco-dot-1"></div>
-    <div class="deco-dot deco-dot-2"></div>
-    <div class="deco-dot deco-dot-3"></div>
+    <!-- FONDO FLAT SIN VIDEO, SIN FILTROS NEÓN -->
+    <div class="flat-background"></div>
+    <div class="bg-pattern"></div>
+    
+    <!-- Decoraciones planas -->
+    <div class="deco-rect deco-rect-1"></div>
+    <div class="deco-rect deco-rect-2"></div>
+    <div class="deco-rect deco-rect-3"></div>
     
     <div class="login-wrapper">
-        <div class="glass-card">
+        <!-- TARJETA COMPLETAMENTE PLANA -->
+        <div class="flat-card">
             <!-- LOGO Y TEXTO ALINEADOS HORIZONTALMENTE -->
             <div class="brand-horizontal">
                 <div class="logo-container">
@@ -58,13 +49,13 @@
                     <label for="password">Contraseña</label>
                 </div>
 
-                <button type="button" class="btn-login" id="loginBtn" onclick="location.href='/TRACKING_TERMINAL/views/layouts/menu_general.php'">
+                 <button type="button" class="btn-login" id="loginBtn" onclick="location.href='/TRACKING_TERMINAL/views/layouts/menu_general.php'">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>Ingresar</span>
                 </button>
                 
                 <div class="links-row">
-                    <a href="#"><i class="fas fa-user-plus"></i> Registrate</a>
+                    <a href="/TRACKING_TERMINAL/views/register.php"><i class="fas fa-user-plus"></i> Registrate</a>
                     <a href="#"><i class="fas fa-key"></i> ¿Olvidaste tu contraseña?</a>
                 </div>
             </form>
@@ -74,6 +65,5 @@
     <div class="tracking-element">
         <i class="fas fa-satellite-dish"></i> TERMINAL ONLINE · SEGUIMIENTO ACTIVO
     </div>
-
 </body>
 </html>

@@ -40,10 +40,10 @@ body {
     pointer-events: none;
 }
 
-/* CONTENEDOR PRINCIPAL */
-.login-wrapper {
+/* CONTENEDOR PRINCIPAL - MÁS ANCHO PARA REGISTRO */
+.register-wrapper {
     width: 100%;
-    max-width: 460px;
+    max-width: 560px;
     z-index: 10;
     position: relative;
     padding: 1rem;
@@ -52,7 +52,7 @@ body {
 /* TARJETA PLANA - SIN REDONDEO */
 .flat-card {
     background: #ffffff;
-    padding: 2.2rem 2rem;
+    padding: 2rem 2rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transition: none;
     border: none;
@@ -113,6 +113,95 @@ body {
 
 .brand-text p i {
     font-size: 0.7rem;
+    color: #2c7da0;
+}
+
+/* SECCIÓN DE FOTO DE PERFIL */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5ecef;
+}
+
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    background: #f4f7f9;
+    border: 2px solid #d4dfe6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-avatar i {
+    font-size: 80px;
+    color: #8ba0ae;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(44, 125, 160, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.profile-image-container:hover .profile-image-overlay {
+    opacity: 1;
+}
+
+.upload-label {
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.upload-label i {
+    font-size: 0.8rem;
+}
+
+.profile-input {
+    display: none;
+}
+
+.upload-hint {
+    font-size: 0.7rem;
+    color: #8ba0ae;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.upload-hint i {
+    font-size: 0.65rem;
     color: #2c7da0;
 }
 
@@ -190,8 +279,88 @@ body {
     color: transparent;
 }
 
-/* BOTÓN PRINCIPAL - FLAT */
-.btn-login {
+/* CAMPO DE TÉRMINOS Y CONDICIONES - CHECKBOX PERSONALIZADO */
+.terms-field {
+    margin: 1rem 0 1.5rem 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #5a6e7c;
+    position: relative;
+    user-select: none;
+}
+
+.checkbox-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: #f4f7f9;
+    border: 1px solid #d4dfe6;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.checkbox-label:hover input ~ .checkmark {
+    border-color: #2c7da0;
+}
+
+.checkbox-label input:checked ~ .checkmark {
+    background: #2c7da0;
+    border-color: #2c7da0;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-label input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-label .checkmark:after {
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.terms-text {
+    line-height: 1.4;
+}
+
+.terms-text a {
+    color: #2c7da0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.terms-text a:hover {
+    color: #1f5e7e;
+    text-decoration: underline;
+}
+
+/* BOTÓN DE REGISTRO - FLAT */
+.btn-register {
     width: 100%;
     background: #2c7da0;
     border: none;
@@ -208,38 +377,33 @@ body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-top: 0.5rem;
     margin-bottom: 1.5rem;
     box-shadow: none;
 }
 
-.btn-login i {
+.btn-register i {
     font-size: 1rem;
     transition: none;
 }
 
-.btn-login:hover {
+.btn-register:hover {
     background: #1f5e7e;
     transform: none;
     box-shadow: none;
 }
 
-.btn-login:active {
+.btn-register:active {
     background: #154d67;
     transform: none;
 }
 
-/* LINKS INFERIORES */
-.links-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
+/* ENLACE PARA VOLVER AL LOGIN */
+.login-link {
+    text-align: center;
     margin-top: 0.5rem;
 }
 
-.links-row a {
+.login-link a {
     color: #5a6e7c;
     text-decoration: none;
     font-size: 0.85rem;
@@ -247,15 +411,15 @@ body {
     transition: color 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
-.links-row a i {
+.login-link a i {
     font-size: 0.8rem;
     color: #2c7da0;
 }
 
-.links-row a:hover {
+.login-link a:hover {
     color: #2c7da0;
     text-decoration: underline;
 }
@@ -318,7 +482,11 @@ body {
 }
 
 /* RESPONSIVE */
-@media (max-width: 550px) {
+@media (max-width: 600px) {
+    .register-wrapper {
+        max-width: 95%;
+    }
+    
     .flat-card {
         padding: 1.6rem 1.2rem;
     }
@@ -348,13 +516,22 @@ body {
     .brand-text p {
         font-size: 0.75rem;
     }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-avatar i {
+        font-size: 65px;
+    }
 }
 
 @media (max-width: 768px) {
     .flat-card {
         padding: 1.8rem 1.5rem;
     }
-    .btn-login {
+    .btn-register {
         padding: 0.8rem;
     }
 }
@@ -367,29 +544,37 @@ body {
         padding: 0.8rem 1rem 0.8rem 2.8rem;
         font-size: 0.9rem;
     }
-    .links-row a {
-        font-size: 0.7rem;
+    .terms-text {
+        font-size: 0.75rem;
+    }
+    .login-link a {
+        font-size: 0.75rem;
     }
     .tracking-element {
         font-size: 0.6rem;
         bottom: 12px;
         left: 12px;
     }
+    .upload-hint {
+        font-size: 0.65rem;
+    }
 }
 
 @media (max-width: 400px) {
-    .links-row {
-        flex-direction: column;
-        align-items: stretch;
-        text-align: center;
+    .terms-text {
+        font-size: 0.7rem;
     }
-    .links-row a {
-        justify-content: center;
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+    }
+    .profile-avatar i {
+        font-size: 55px;
     }
 }
 
 /* ESTADOS */
-.btn-login.loading {
+.btn-register.loading {
     opacity: 0.7;
     cursor: not-allowed;
 }
@@ -404,7 +589,7 @@ input:-webkit-autofill:focus {
 
 /* SAFE AREAS */
 @supports (padding: max(0px)) {
-    .login-wrapper {
+    .register-wrapper {
         padding-left: max(1rem, env(safe-area-inset-left));
         padding-right: max(1rem, env(safe-area-inset-right));
     }
@@ -415,7 +600,7 @@ input:-webkit-autofill:focus {
 }
 
 /* FOCUS VISIBLE ACCESIBILIDAD */
-.btn-login:focus-visible,
+.btn-register:focus-visible,
 .input-field input:focus-visible {
     outline: 2px solid #2c7da0;
     outline-offset: 2px;
