@@ -39,7 +39,7 @@
     text-transform: uppercase;
     font-size: 0.75rem;
     display: block;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     letter-spacing: 1px;
 }
 
@@ -49,9 +49,11 @@
 .admin-sidebar {
     background: var(--bg-dark);
     border-right: 1px solid var(--bg-panel);
-    padding: 35px 25px;
+    padding: 15px 20px 25px 20px;
     display: flex;
     flex-direction: column;
+    height: 100vh; /* Asegura que ocupe todo el alto */
+    box-sizing: border-box; /* Para que el padding no sume tamaño extra */
 }
 
 /* Contenedor de separación solicitado */
@@ -82,6 +84,8 @@
    CONTROLES (SELECT Y COLOR PICKER)
    =========================================================== */
 .custom-select {
+    position: relative;
+    width: 100%;
     background: var(--bg-panel);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
@@ -89,6 +93,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    box-sizing: border-box; /* Crucial para que el padding no rompa el ancho */
 }
 
 .custom-select select {
@@ -98,6 +103,18 @@
     width: 100%;
     outline: none;
     font-weight: 500;
+    cursor: pointer;
+    appearance: none;   /* Elimina estilos nativos de algunos navegadores */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* --- ESTA ES LA REGLA QUE ARREGLA EL BUG --- */
+.custom-select select option {
+    background-color: var(--bg-panel); /* Fondo oscuro igual al panel */
+    color: white; /* Texto siempre blanco */
+    padding: 10px;
+    width: 100%;
 }
 
 .color-picker-wrapper {
@@ -127,6 +144,19 @@ input[type="color"] {
     justify-content: space-between;
     font-size: 0.8rem;
     font-weight: bold;
+    margin-top: 17px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+    flex-grow: 1; /* Esto hace que la lista ocupe el espacio disponible */
+    min-height: 0; /* Evita que la lista empuje el botón fuera de la pantalla */
+}
+
+
+
+.control-group {
+    margin-top: 25px; /* Añade separación respecto al elemento de arriba */
+    margin-bottom: 5px;
 }
 
 /* Color corregido para el span count */
@@ -222,29 +252,28 @@ input[type="color"] {
     gap: 10px;
 }
 
-/* El punto de Live Tracking */
-.dot.pulse {
+/* Estado por defecto: Inactivo (Gris o Rojo suave) */
+.dot {
     width: 10px;
     height: 10px;
-    background: #2ecc71; /* Verde activo */
+    background-color: #94a3b8; /* Gris azulado */
     border-radius: 50%;
-    position: relative;
+    display: inline-block;
+    margin-right: 8px;
+    transition: all 0.3s ease;
 }
 
-/* Animación de pulso para el punto activo */
-.dot.pulse::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: #2ecc71;
-    border-radius: 50%;
-    animation: live-pulse 2s infinite;
+/* Estado Activo: Verde y Parpadeando */
+.dot.active {
+    background-color: #2ecc71;
+    box-shadow: 0 0 10px #2ecc71;
+    animation: pulse-animation 1.5s infinite;
 }
 
-@keyframes live-pulse {
-    0% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(2.5); opacity: 0; }
+@keyframes pulse-animation {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* ===========================================================
@@ -262,10 +291,113 @@ input[type="color"] {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 5px;
 }
 
 .btn-back:hover {
     color: var(--text-white);
     transform: translateX(-5px);
     transition: 0.3s;
+}
+
+/* ===========================================================
+   BOTÓN INICIAR TRACKING
+   =========================================================== */
+.btn-start-tracking {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #00C2C7, #3AD1D6);
+    color: white;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0, 194, 199, 0.25);
+    margin-bottom: 5px; /* Pequeño margen final */
+    flex-shrink: 0; /* Evita que el botón se haga pequeño si hay muchas rutas */
+}
+
+.btn-start-tracking:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 194, 199, 0.35);
+    filter: brightness(1.05);
+}
+
+.btn-start-tracking:active {
+    transform: scale(0.98);
+}
+
+/* ===========================================================
+   BOTÓN RETROCESO SUPERIOR
+   =========================================================== */
+.btn-back-icon {
+    width: 32px;  /* Antes 42px */
+    height: 32px; /* Antes 42px */
+    border-radius: 8px;
+    margin-bottom: 10px; /* Reducido para que todo lo de abajo suba */
+    font-size: 0.80rem;  /* Icono más pequeño */
+    /* Mantenemos el resto igual */
+    background: var(--bg-panel);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.btn-back-icon:hover {
+    background: var(--accent-primary);
+    color: var(--bg-dark);
+    transform: translateX(-3px);
+    box-shadow: 0 0 15px rgba(0, 194, 199, 0.35);
+}
+
+.btn-start-tracking:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ===========================================================
+   ANIMACIONES DE HOVER EN RUTAS (NUEVO)
+   =========================================================== */
+
+/* 1. Preparar el elemento base para transiciones suaves */
+.route-item {
+    cursor: pointer; /* Indica que se puede hacer clic */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Animación suave y natural */
+    position: relative; /* Necesario para que la sombra no se corte */
+    z-index: 1; /* Preparar para elevación */
+}
+
+/* 2. Efecto al pasar el cursor (Hover) */
+.route-item:hover {
+    background-color: #2a2a2a; /* Fondo un poco más claro que el card-bg original (#1C1C1C) */
+    transform: translateY(-3px) scale(1.02); /* Se eleva un poco y se expande un 2% */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Sombra más pronunciada para efecto de elevación */
+    z-index: 2; /* Se pone por encima de los otros items para que la sombra se vea bien */
+}
+
+/* 3. Asegurar que la ruta activa mantenga su identidad */
+.route-item.active {
+    border-color: var(--accent-primary);
+    background: rgba(0, 194, 199, 0.05);
+    /* Mantenemos una sombra persistente para la activa */
+    box-shadow: 0 4px 10px rgba(0, 194, 199, 0.15); 
+}
+
+/* 4. Efecto hover sobre un item ya activo */
+.route-item.active:hover {
+    background: rgba(0, 194, 199, 0.1); /* Un poco más intenso el fondo al hover */
+    box-shadow: 0 8px 15px rgba(0, 194, 199, 0.3); /* Sombra cyan más fuerte */
+    /* Mantenemos el scale y transform heredado de .route-item:hover */
 }
