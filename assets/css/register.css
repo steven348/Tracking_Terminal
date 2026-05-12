@@ -7,13 +7,13 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #0a2b3e;
     position: relative;
-    overflow-x: hidden;
 }
 
 /* FONDO SÓLIDO CON DEGRADADO FLAT */
@@ -40,22 +40,47 @@ body {
     pointer-events: none;
 }
 
-/* CONTENEDOR PRINCIPAL - MÁS ANCHO PARA REGISTRO */
+/* CONTENEDOR PRINCIPAL - MUY ANCHO */
 .register-wrapper {
     width: 100%;
-    max-width: 560px;
+    max-width: 1100px;
     z-index: 10;
     position: relative;
     padding: 1rem;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* TARJETA PLANA - SIN REDONDEO */
+/* TARJETA PLANA - ANCHA Y SIN SCROLL EXTERNO */
 .flat-card {
     background: #ffffff;
-    padding: 2rem 2rem;
+    padding: 2rem 2.5rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    transition: none;
     border: none;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+}
+
+/* Scroll interno SUTIL y moderno */
+.flat-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.flat-card::-webkit-scrollbar-track {
+    background: #e5ecef;
+    border-radius: 3px;
+}
+
+.flat-card::-webkit-scrollbar-thumb {
+    background: #2c7da0;
+    border-radius: 3px;
+}
+
+.flat-card::-webkit-scrollbar-thumb:hover {
+    background: #1f5e7e;
 }
 
 /* BRAND HORIZONTAL */
@@ -64,8 +89,8 @@ body {
     align-items: center;
     justify-content: center;
     gap: 1.2rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
+    margin-bottom: 1.8rem;
+    flex-wrap: nowrap;
 }
 
 .logo-container {
@@ -75,11 +100,9 @@ body {
 }
 
 .logo-img {
-    max-width: 68px;
+    max-width: 65px;
     width: auto;
     height: auto;
-    filter: none;
-    transition: none;
     display: block;
 }
 
@@ -103,7 +126,7 @@ body {
 
 .brand-text p {
     color: #5a6e7c;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -112,16 +135,16 @@ body {
 }
 
 .brand-text p i {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: #2c7da0;
 }
 
-/* SECCIÓN DE FOTO DE PERFIL */
+/* SECCIÓN DE FOTO DE PERFIL - CENTRAL */
 .profile-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid #e5ecef;
 }
@@ -129,12 +152,12 @@ body {
 .profile-image-container {
     position: relative;
     display: inline-block;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .profile-avatar {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     background: #f4f7f9;
     border: 2px solid #d4dfe6;
     display: flex;
@@ -145,7 +168,7 @@ body {
 }
 
 .profile-avatar i {
-    font-size: 80px;
+    font-size: 65px;
     color: #8ba0ae;
 }
 
@@ -164,7 +187,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
+    padding: 6px;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
@@ -194,7 +217,7 @@ body {
 .upload-hint {
     font-size: 0.7rem;
     color: #8ba0ae;
-    margin-top: 0.5rem;
+    margin-top: 0.35rem;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -205,10 +228,18 @@ body {
     color: #2c7da0;
 }
 
-/* INPUT FIELDS - FLAT */
+/* GRID DE 2 COLUMNAS PARA LOS CAMPOS */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* INPUT FIELDS */
 .input-field {
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .input-field i {
@@ -217,7 +248,7 @@ body {
     top: 50%;
     transform: translateY(-50%);
     color: #8ba0ae;
-    font-size: 1.1rem;
+    font-size: 1rem;
     transition: color 0.2s ease;
     pointer-events: none;
     z-index: 2;
@@ -228,8 +259,8 @@ body {
     background: #f4f7f9;
     border: 1px solid #d4dfe6;
     border-radius: 0px;
-    padding: 0.9rem 1rem 0.9rem 2.8rem;
-    font-size: 0.95rem;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #1a2c38;
     font-family: 'Inter', sans-serif;
@@ -254,7 +285,7 @@ body {
     top: 50%;
     transform: translateY(-50%);
     color: #8ba0ae;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 400;
     pointer-events: none;
     transition: 0.2s ease;
@@ -266,8 +297,8 @@ body {
 .input-field input:focus ~ label,
 .input-field input:not(:placeholder-shown) ~ label {
     top: 0px;
-    left: 2.4rem;
-    font-size: 0.68rem;
+    left: 2.5rem;
+    font-size: 0.65rem;
     background: #ffffff;
     padding: 0 6px;
     color: #2c7da0;
@@ -279,9 +310,10 @@ body {
     color: transparent;
 }
 
-/* CAMPO DE TÉRMINOS Y CONDICIONES - CHECKBOX PERSONALIZADO */
+/* TÉRMINOS - OCUPA LAS 2 COLUMNAS */
 .terms-field {
-    margin: 1rem 0 1.5rem 0;
+    grid-column: span 2;
+    margin: 0.5rem 0 0.8rem 0;
 }
 
 .checkbox-label {
@@ -359,13 +391,13 @@ body {
     text-decoration: underline;
 }
 
-/* BOTÓN DE REGISTRO - FLAT */
+/* BOTÓN DE REGISTRO */
 .btn-register {
-    width: 100%;
+    width: 260px;
     background: #2c7da0;
     border: none;
     border-radius: 0px;
-    padding: 0.85rem;
+    padding: 0.9rem;
     font-size: 1rem;
     font-weight: 700;
     font-family: 'Inter', sans-serif;
@@ -377,7 +409,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1rem auto;
     box-shadow: none;
 }
 
@@ -400,7 +432,7 @@ body {
 /* ENLACE PARA VOLVER AL LOGIN */
 .login-link {
     text-align: center;
-    margin-top: 0.5rem;
+    margin-top: 0.3rem;
 }
 
 .login-link a {
@@ -462,7 +494,7 @@ body {
 /* LÍNEA DE TERMINAL */
 .tracking-element {
     position: fixed;
-    bottom: 20px;
+    bottom: 15px;
     left: 20px;
     font-size: 0.7rem;
     font-family: 'Inter', monospace;
@@ -481,20 +513,61 @@ body {
     color: #2c7da0;
 }
 
-/* RESPONSIVE */
-@media (max-width: 600px) {
+/* ============================================ */
+/* RESPONSIVE: TABLETS Y PANTALLAS MEDIANAS */
+/* ============================================ */
+@media (max-width: 900px) {
     .register-wrapper {
         max-width: 95%;
+        padding: 0.8rem;
     }
     
     .flat-card {
-        padding: 1.6rem 1.2rem;
+        padding: 1.8rem 2rem;
+    }
+    
+    .form-grid {
+        gap: 1rem;
+    }
+    
+    .brand-text h1 {
+        font-size: 1.8rem;
+    }
+    
+    .logo-img {
+        max-width: 55px;
+    }
+}
+
+/* ============================================ */
+/* RESPONSIVE: MÓVILES (1 SOLA COLUMNA) */
+/* ============================================ */
+@media (max-width: 768px) {
+    .register-wrapper {
+        max-width: 100%;
+        padding: 0.5rem;
+    }
+    
+    .flat-card {
+        padding: 1.5rem 1.2rem;
+        max-height: 95vh;
+    }
+    
+    /* CAMBIO A 1 SOLA COLUMNA */
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+    
+    .terms-field {
+        grid-column: span 1;
     }
     
     .brand-horizontal {
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
         flex-direction: column;
         text-align: center;
-        gap: 0.8rem;
     }
     
     .brand-text {
@@ -505,71 +578,158 @@ body {
         justify-content: center;
     }
     
-    .logo-img {
-        max-width: 55px;
-    }
-    
-    .brand-text h1 {
-        font-size: 1.8rem;
-    }
-    
-    .brand-text p {
-        font-size: 0.75rem;
-    }
-
-    .profile-avatar {
-        width: 100px;
-        height: 100px;
-    }
-
-    .profile-avatar i {
-        font-size: 65px;
-    }
-}
-
-@media (max-width: 768px) {
-    .flat-card {
-        padding: 1.8rem 1.5rem;
-    }
-    .btn-register {
-        padding: 0.8rem;
-    }
-}
-
-@media (max-width: 520px) {
     .brand-text h1 {
         font-size: 1.6rem;
     }
+    
+    .logo-img {
+        max-width: 52px;
+    }
+    
+    .profile-avatar {
+        width: 85px;
+        height: 85px;
+    }
+    
+    .profile-avatar i {
+        font-size: 55px;
+    }
+    
     .input-field input {
-        padding: 0.8rem 1rem 0.8rem 2.8rem;
-        font-size: 0.9rem;
+        padding: 0.75rem 1rem 0.75rem 2.6rem;
+        font-size: 0.85rem;
     }
-    .terms-text {
-        font-size: 0.75rem;
-    }
-    .login-link a {
-        font-size: 0.75rem;
-    }
-    .tracking-element {
-        font-size: 0.6rem;
-        bottom: 12px;
-        left: 12px;
-    }
-    .upload-hint {
-        font-size: 0.65rem;
+    
+    .btn-register {
+        padding: 0.75rem;
+        font-size: 0.95rem;
     }
 }
 
-@media (max-width: 400px) {
+/* ============================================ */
+/* RESPONSIVE: MÓVILES PEQUEÑOS */
+/* ============================================ */
+@media (max-width: 480px) {
+    .flat-card {
+        padding: 1rem 1rem;
+    }
+    
+    .brand-text h1 {
+        font-size: 1.4rem;
+    }
+    
+    .brand-text p {
+        font-size: 0.7rem;
+    }
+    
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .profile-avatar i {
+        font-size: 45px;
+    }
+    
+    .upload-label span {
+        display: none;
+    }
+    
+    .upload-label i {
+        font-size: 0.9rem;
+    }
+    
+    .upload-hint {
+        font-size: 0.6rem;
+    }
+    
+    .input-field input {
+        padding: 0.7rem 0.8rem 0.7rem 2.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .input-field i {
+        font-size: 0.9rem;
+        left: 12px;
+    }
+    
+    .input-field label {
+        left: 2.4rem;
+        font-size: 0.75rem;
+    }
+    
+    .input-field input:focus ~ label,
+    .input-field input:not(:placeholder-shown) ~ label {
+        left: 2.2rem;
+        font-size: 0.6rem;
+    }
+    
     .terms-text {
         font-size: 0.7rem;
     }
-    .profile-avatar {
-        width: 90px;
-        height: 90px;
+    
+    .checkbox-label {
+        gap: 8px;
     }
+    
+    .btn-register {
+        padding: 0.65rem;
+        font-size: 0.85rem;
+        gap: 8px;
+    }
+    
+    .btn-register i {
+        font-size: 0.85rem;
+    }
+    
+    .login-link a {
+        font-size: 0.7rem;
+    }
+    
+    .tracking-element {
+        font-size: 0.55rem;
+        padding: 4px 10px;
+        bottom: 8px;
+        left: 10px;
+    }
+}
+
+/* PANTALLAS CON ALTURA REDUCIDA */
+@media (max-height: 700px) {
+    .flat-card {
+        padding: 1.2rem 2rem;
+        max-height: 96vh;
+    }
+    
+    .brand-horizontal {
+        margin-bottom: 1rem;
+    }
+    
+    .profile-section {
+        margin-bottom: 1rem;
+        padding-bottom: 0.7rem;
+    }
+    
+    .profile-avatar {
+        width: 75px;
+        height: 75px;
+    }
+    
     .profile-avatar i {
-        font-size: 55px;
+        font-size: 48px;
+    }
+    
+    .form-grid {
+        gap: 0.7rem;
+    }
+    
+    .input-field input {
+        padding: 0.7rem 1rem 0.7rem 2.6rem;
+    }
+    
+    .btn-register {
+        padding: 0.7rem;
+        margin-bottom: 0.7rem;
     }
 }
 
@@ -594,7 +754,7 @@ input:-webkit-autofill:focus {
         padding-right: max(1rem, env(safe-area-inset-right));
     }
     .tracking-element {
-        bottom: max(20px, env(safe-area-inset-bottom));
+        bottom: max(15px, env(safe-area-inset-bottom));
         left: max(20px, env(safe-area-inset-left));
     }
 }

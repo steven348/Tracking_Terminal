@@ -10,21 +10,21 @@
 </head>
 <body>
 
-<!-- BANNER PARALLAX PRINCIPAL (Hero) -->
-<section class="parallax-hero" id="parallaxHero">
-    <div class="parallax-layer layer-bg" data-speed="0.2"></div>
-    <div class="parallax-layer layer-particles" data-speed="0.4"></div>
-    
-    <!-- Botón de cerrar sesión en esquina superior derecha -->
-    <button class="logout-btn" id="logoutBtn" onclick="window.location.href='/Tracking_Terminal/index.php'">CERRAR SESIÓN</button>
-    
-    <div class="hero-content">
-        <div class="hero-title-wrapper">
-            <img src="/TRACKING_TERMINAL/assets/img/logobus.png" alt="Busito SV Logo" class="hero-logo" onerror="this.style.display='none'">
-            <h1>BUSITO <span>SV</span></h1>
-        </div>
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar__left">
+        <img src="/TRACKING_TERMINAL/assets/img/logobus.png" alt="Busito SV Logo" class="navbar__logo" onerror="this.style.display='none'">
+        <h2 class="navbar__title">BUSITO <span>SV</span></h2>
     </div>
-</section>
+    
+    <div class="navbar__right">
+        <div class="navbar__profile">
+            <img src="/TRACKING_TERMINAL/assets/img/Perfil/IconoPerfil.png" alt="Perfil" class="navbar__avatar">
+            <span class="navbar__username">Usuario</span>
+        </div>
+        <button class="navbar__logout" id="logoutBtn" onclick="window.location.href='/Tracking_Terminal/index.php'">CERRAR SESIÓN</button>
+    </div>
+</nav>
 
 <!-- TARJETAS UNA AL LADO DE LA OTRA -->
 <div class="cards-container">
@@ -43,7 +43,7 @@
         </div>
         
         <div class="card__body">
-            <div class="card__image-wrapper">
+            <div class="card__image-wrapper card__image-wrapper--tracking">
                 <img src="/TRACKING_TERMINAL/assets/img/tracking.png" alt="Realizar Tracking" class="card__image card__image--tracking">
             </div>
             
@@ -67,12 +67,36 @@
         </div>
         
         <div class="card__body">
-            <div class="card__image-wrapper">
+            <div class="card__image-wrapper card__image-wrapper--center">
                 <img src="/TRACKING_TERMINAL/assets/img/mano.png" alt="Ver Trackings" class="card__image card__image--vertracking">
             </div>
             
             <a href="ver_trackings.php" class="card__action">VER TRACKINGS →</a>
             <span class="card__category">CONSULTA Y DETALLES</span>
+        </div>
+    </div>
+
+    <!-- Tarjeta: Panel Admin (Solo Admin) -->
+    <div class="card card--admin">
+        <div class="card__header">
+            <div class="card__watermark" data-watermark="Admin"></div>
+            
+            <span class="card__price">Privado</span>
+            
+            <h1 class="card__title">PANEL ADMIN</h1>
+            <p class="card__subtitle">
+                Acceso exclusivo para administradores.<br>
+                Gestión de usuarios, configuración del sistema, reportes avanzados y control total de la plataforma.
+            </p>
+        </div>
+        
+        <div class="card__body">
+            <div class="card__image-wrapper card__image-wrapper--admin">
+                <img src="/TRACKING_TERMINAL/assets/img/admin.png" alt="Panel Admin" class="card__image card__image--admin">
+            </div>
+            
+            <a href="panel_admin.php" class="card__action">ACCEDER AL PANEL →</a>
+            <span class="card__category">ADMINISTRACIÓN</span>
         </div>
     </div>
 </div>

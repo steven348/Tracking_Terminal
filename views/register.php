@@ -54,55 +54,58 @@
                     <p class="upload-hint"><i class="fas fa-info-circle"></i> Formatos permitidos: JPG, PNG. Máx. 2MB</p>
                 </div>
 
-                <!-- Campo: Nombre completo -->
-                <div class="input-field">
-                    <i class="fas fa-user-circle"></i>
-                    <input type="text" name="nombre_completo" id="nombre_completo" autocomplete="name" placeholder=" ">
-                    <label for="nombre_completo">Nombre completo</label>
-                </div>
+                <!-- GRID DE 2 COLUMNAS -->
+                <div class="form-grid">
+                    <!-- Campo: Nombre completo -->
+                    <div class="input-field">
+                        <i class="fas fa-user-circle"></i>
+                        <input type="text" name="nombre_completo" id="nombre_completo" autocomplete="name" placeholder=" ">
+                        <label for="nombre_completo">Nombre completo</label>
+                    </div>
 
-                <!-- Campo: Correo electrónico -->
-                <div class="input-field">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" name="email" id="email" autocomplete="email" placeholder=" ">
-                    <label for="email">Correo electrónico</label>
-                </div>
+                    <!-- Campo: Correo electrónico -->
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="email" id="email" autocomplete="email" placeholder=" ">
+                        <label for="email">Correo electrónico</label>
+                    </div>
 
-                <!-- Campo: Teléfono -->
-                <div class="input-field">
-                    <i class="fas fa-phone"></i>
-                    <input type="tel" name="telefono" id="telefono" autocomplete="tel" placeholder=" ">
-                    <label for="telefono">Teléfono</label>
-                </div>
+                    <!-- Campo: Teléfono -->
+                    <div class="input-field">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" name="telefono" id="telefono" autocomplete="tel" placeholder=" ">
+                        <label for="telefono">Teléfono</label>
+                    </div>
 
-                <!-- Campo: Usuario -->
-                <div class="input-field">
-                    <i class="fas fa-user"></i>
-                    <input type="text" name="usuario" id="usuario" autocomplete="username" placeholder=" ">
-                    <label for="usuario">Usuario</label>
-                </div>
+                    <!-- Campo: Usuario -->
+                    <div class="input-field">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="usuario" id="usuario" autocomplete="username" placeholder=" ">
+                        <label for="usuario">Nombre de usuario</label>
+                    </div>
 
-                <!-- Campo: Contraseña -->
-                <div class="input-field">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" name="password" id="password" autocomplete="new-password" placeholder=" ">
-                    <label for="password">Contraseña</label>
-                </div>
+                    <!-- Campo: Contraseña -->
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" id="password" autocomplete="new-password" placeholder=" ">
+                        <label for="password">Contraseña</label>
+                    </div>
 
-                <!-- Campo: Confirmar contraseña -->
-                <div class="input-field">
-                    <i class="fas fa-check-circle"></i>
-                    <input type="password" name="confirm_password" id="confirm_password" autocomplete="off" placeholder=" ">
-                    <label for="confirm_password">Confirmar contraseña</label>
-                </div>
+                    <!-- Campo: Confirmar contraseña -->
+                    <div class="input-field">
+                        <i class="fas fa-check-circle"></i>
+                        <input type="password" name="confirm_password" id="confirm_password" autocomplete="off" placeholder=" ">
+                        <label for="confirm_password">Confirmar contraseña</label>
+                    </div>
 
-                <!-- Términos y condiciones -->
-                <div class="terms-field">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="terminos" id="terminos">
-                        <span class="checkmark"></span>
-                        <span class="terms-text">Acepto los <a href="#">términos y condiciones</a> y la <a href="#">política de privacidad</a></span>
-                    </label>
+                    <!-- Términos y condiciones -->
+                    <div class="terms-field">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terminos" id="terminos">
+                            <span class="checkmark"></span>
+                            <span class="terms-text">Acepto los <a href="#">términos y condiciones</a> y la <a href="#">política de privacidad</a></span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Botón de registro -->
