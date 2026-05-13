@@ -95,7 +95,7 @@
                 <img src="/TRACKING_TERMINAL/assets/img/admin.png" alt="Panel Admin" class="card__image card__image--admin">
             </div>
             
-            <a href="panel_admin.php" class="card__action">ACCEDER AL PANEL →</a>
+            <a href="vista_admin.php" class="card__action">ACCEDER AL PANEL →</a>
             <span class="card__category">ADMINISTRACIÓN</span>
         </div>
     </div>
