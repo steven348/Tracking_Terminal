@@ -9,7 +9,7 @@
     <!-- Font Awesome 6 para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- CSS principal - RUTA ORIGINAL -->
-    <link rel="stylesheet" href="/TRACKING_TERMINAL/assets/css/login.css">
+    <link rel="stylesheet" href="./assets/css/login.css">
 </head>
 <body>
 
