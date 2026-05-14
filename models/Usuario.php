@@ -1,26 +1,61 @@
 <?php
-class Usuario {
-    private $pdo;
-    public function __construct($db) { $this->pdo = $db; }
+// /TRACKING_TERMINAL/models/Usuario.php
 
+class Usuario {
+    private $conn;
+    private $table = "usuarios";
+    
+    public function __construct($db) {
+        $this->conn = $db;
+    }
+    
+    public function buscarPorUsuario($usuario) {
+        $query = "SELECT * FROM " . $this->table . " WHERE nombre_usuario = ? LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$usuario]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
     public function registrar($datos) {
         try {
-            $sql = "INSERT INTO usuarios (nombre_completo, nombre_usuario, correo, telefono, password, foto_perfil) 
-                    VALUES (:nom, :user, :email, :tel, :pass, :foto)";
-            $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute($datos);
-        } catch (PDOException $e) {
-            // Código 23000 es para violación de integridad (campos UNIQUE duplicados)
-            if ($e->getCode() == 23000) {
+            // Verificar si ya existe el usuario o correo
+            $checkQuery = "SELECT id_usuario FROM " . $this->table . " WHERE nombre_usuario = ? OR correo = ?";
+            $checkStmt = $this->conn->prepare($checkQuery);
+            $checkStmt->execute([$datos['user'], $datos['email']]);
+            
+            if ($checkStmt->rowCount() > 0) {
                 return "duplicado";
             }
+            
+            // Insertar nuevo usuario
+            $query = "INSERT INTO " . $this->table . " 
+                      (nombre_completo, nombre_usuario, correo, telefono, password, foto_perfil, id_rol) 
+                      VALUES (?, ?, ?, ?, ?, ?, 2)";
+            
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute([
+                $datos['nom'],
+                $datos['user'],
+                $datos['email'],
+                $datos['tel'],
+                $datos['pass'],
+                $datos['foto']
+            ]);
+            
+            return $result;
+            
+        } catch (PDOException $e) {
+            error_log("Error en registro de usuario: " . $e->getMessage());
             return false;
         }
     }
-
-    public function buscarPorUsuario($user) {
-        $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE nombre_usuario = ?");
-        $stmt->execute([$user]);
+    
+    // Método adicional para obtener usuario por ID
+    public function obtenerPorId($id) {
+        $query = "SELECT * FROM " . $this->table . " WHERE id_usuario = ? LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
+?>

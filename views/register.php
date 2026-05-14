@@ -1,4 +1,6 @@
 <?php
+// /TRACKING_TERMINAL/views/register.php
+
 $error_reg = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $root = dirname(__DIR__); 
@@ -50,8 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <?php if ($error_reg): ?>
-                <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #f5c6cb; font-family: 'Inter'; font-size: 14px;">
-                    <i class="fas fa-exclamation-circle"></i> <?php echo $error_reg; ?>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error_reg); ?>
                 </div>
             <?php endif; ?>
 
@@ -118,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
-                <button type="submit" class="btn-register">
+                <button type="submit" class="btn-register" id="btnSubmit">
                     <i class="fas fa-user-plus"></i>
                     <span>Registrarme</span>
                 </button>
@@ -135,5 +137,91 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="tracking-element">
         <i class="fas fa-satellite-dish"></i> TERMINAL ONLINE · REGISTRO SEGURO
     </div>
+
+    <script>
+    // Vista previa de la imagen de perfil
+    document.getElementById('profile_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            const avatar = document.getElementById('profileAvatar');
+            
+            reader.onload = function(e) {
+                // Limpiar el contenido actual
+                avatar.innerHTML = '';
+                // Crear la imagen de vista previa
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                avatar.appendChild(img);
+            };
+            
+            reader.readAsDataURL(file);
+            
+            // Validar tamaño y tipo
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                alert('Solo se permiten formatos JPG y PNG');
+                this.value = '';
+                // Restaurar icono por defecto
+                avatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                alert('La imagen no debe superar los 2MB');
+                this.value = '';
+                avatar.innerHTML = '<i class="fas fa-user-circle"></i>';
+                return;
+            }
+        }
+    });
+    
+    // Validaciones del formulario
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm_password').value;
+        const terminos = document.getElementById('terminos');
+        const btnSubmit = document.getElementById('btnSubmit');
+        
+        // Validar contraseñas
+        if (password !== confirm) {
+            e.preventDefault();
+            alert('Las contraseñas no coinciden');
+            return false;
+        }
+        
+        // Validar longitud de contraseña
+        if (password.length < 6) {
+            e.preventDefault();
+            alert('La contraseña debe tener al menos 6 caracteres');
+            return false;
+        }
+        
+        // Validar términos y condiciones
+        if (!terminos.checked) {
+            e.preventDefault();
+            alert('Debes aceptar los términos y condiciones');
+            return false;
+        }
+        
+        // Mostrar loading
+        btnSubmit.classList.add('loading');
+        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Registrando...';
+    });
+    
+    // Limpiar mensaje de error al empezar a escribir
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            const errorDiv = document.querySelector('.error-message');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+        });
+    });
+    </script>
 </body>
 </html>
