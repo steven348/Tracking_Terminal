@@ -1,10 +1,12 @@
+
+
 /* ===========================================================
    PALETA DE COLORES - BUSITO SV
    =========================================================== */
 :root {
     --bg-dark: #071A2D;
     --bg-panel: #0E2F4F;
-    --accent-primary: #00C2C7; /* Tu color principal */
+    --accent-primary: #00C2C7;
     --accent-secondary: #3AD1D6;
     --text-white: #FFFFFF;
     --text-muted: #A0B3C6; 
@@ -29,7 +31,7 @@
     height: 100vh;
 }
 
-/* Clases de utilidad para texto */
+/* Utilidades */
 .text-white { color: var(--text-white) !important; }
 .text-light { color: var(--text-muted) !important; }
 
@@ -44,7 +46,7 @@
 }
 
 /* ===========================================================
-   SIDEBAR (SEPARACIÓN Y CONTENIDO)
+   SIDEBAR Y CONTENEDORES
    =========================================================== */
 .admin-sidebar {
     background: var(--bg-dark);
@@ -52,15 +54,14 @@
     padding: 15px 20px 25px 20px;
     display: flex;
     flex-direction: column;
-    height: 100vh; /* Asegura que ocupe todo el alto */
-    box-sizing: border-box; /* Para que el padding no sume tamaño extra */
+    height: 100vh;
+    box-sizing: border-box;
 }
 
-/* Contenedor de separación solicitado */
 .sidebar-content-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 40px; /* Separación amplia entre secciones */
+    gap: 40px;
     margin-top: 30px;
     flex-grow: 1;
 }
@@ -81,42 +82,87 @@
 }
 
 /* ===========================================================
-   CONTROLES (SELECT Y COLOR PICKER)
+   CONTROLES (SELECT2 PERSONALIZADO)
    =========================================================== */
-.custom-select {
-    position: relative;
-    width: 100%;
-    background: var(--bg-panel);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-sizing: border-box; /* Crucial para que el padding no rompa el ancho */
+
+/* 1. CAJA PRINCIPAL (Dropdown Cerrado) */
+.select2-container--default .select2-selection--single {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: border-color 0.3s ease;
 }
 
-.custom-select select {
-    background: none;
-    border: none;
-    color: white;
-    width: 100%;
-    outline: none;
-    font-weight: 500;
-    cursor: pointer;
-    appearance: none;   /* Elimina estilos nativos de algunos navegadores */
-    -webkit-appearance: none;
-    -moz-appearance: none;
+/* Texto dentro de la caja principal */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--text-white) !important;
+    padding-left: 15px !important;
+    font-size: 0.95rem;
 }
 
-/* --- ESTA ES LA REGLA QUE ARREGLA EL BUG --- */
-.custom-select select option {
-    background-color: var(--bg-panel); /* Fondo oscuro igual al panel */
-    color: white; /* Texto siempre blanco */
-    padding: 10px;
-    width: 100%;
+/* Estilo de la flecha lateral */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 46px !important;
+    right: 10px !important;
 }
 
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: var(--text-muted) transparent transparent transparent !important;
+    border-width: 6px 4px 0 4px !important;
+}
+
+/* 2. DROPDOWN ABIERTO (La lista de opciones) */
+.select2-dropdown {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--accent-primary) !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+    z-index: 1051;
+}
+
+/* Contenedor de las opciones */
+.select2-results__options {
+    background-color: var(--bg-panel) !important;
+    color: var(--text-white) !important;
+}
+
+/* Opciones individuales (Estado normal) */
+.select2-results__option {
+    background-color: var(--bg-panel) !important;
+    color: var(--text-white) !important;
+    padding: 12px 15px !important;
+    transition: background 0.2s ease;
+}
+
+/* -------------------------------------------------------
+   ESTADOS DE SELECCIÓN - CORREGIDO PARA SELECT2 4.1.x
+   
+   El problema original: la regla --highlighted[aria-selected]
+   no cubría todos los estados, dejando opciones con fondo
+   blanco (estilo por defecto de Select2).
+   
+   Solución: cubrir --highlighted y --selected por separado
+   ya que en Select2 4.1.x son clases independientes.
+   ------------------------------------------------------- */
+
+   /* ESTADOS DE SELECCIÓN - CORREGIDO */
+.select2-container--default .select2-results__option--highlighted,
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option[aria-selected="true"],
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selected {
+    background-color: #00E5FF !important;
+    font-weight: bold;
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selected {
+    background-color: #3AD1D6 !important;
+    color: #071A2D !important;
+    font-weight: bold;
+}
+/* Color Picker */
 .color-picker-wrapper {
     background: var(--bg-panel);
     padding: 12px;
@@ -136,61 +182,93 @@ input[type="color"] {
 }
 
 /* ===========================================================
-   LISTA DE RUTAS, COUNT Y BADGES (CORREGIDO)
+   LISTA DE RUTAS
    =========================================================== */
 .active-routes-list .list-header {
-    margin-bottom: 15px;
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
-    font-weight: bold;
-    margin-top: 17px;
-    display: flex;
-    flex-direction: column;
+    align-items: center;
     margin-top: 25px;
-    flex-grow: 1; /* Esto hace que la lista ocupe el espacio disponible */
-    min-height: 0; /* Evita que la lista empuje el botón fuera de la pantalla */
+    margin-bottom: 15px;
 }
 
-
-
-.control-group {
-    margin-top: 25px; /* Añade separación respecto al elemento de arriba */
-    margin-bottom: 5px;
-}
-
-/* Color corregido para el span count */
 .active-routes-list .count {
     color: var(--accent-primary) !important;
     font-weight: bold;
 }
 
-.route-item {
-    background: var(--card-bg);
-    border: 1px solid transparent;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
+/* Contenedor en modo Grid de 5 columnas */
+#routesContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 columnas iguales */
+    gap: 8px; /* Espaciado entre cuadritos */
+    padding: 10px 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* El cuadrito de la ruta */
+.route-square {
+    aspect-ratio: 1 / 1; /* Forza que sea un cuadrado perfecto */
+    background: var(--bg-panel);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    padding: 2px;
+    text-transform: uppercase;
+}
+
+/* Hover: Se ilumina sutilmente */
+.route-square:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-white);
+    background: rgba(0, 194, 199, 0.05);
+}
+
+/* Estado Activo (Seleccionado) */
+.route-square.active {
+    background: var(--accent-primary) !important;
+    color: var(--bg-dark) !important;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 12px rgba(0, 194, 199, 0.4);
+    transform: scale(1.05);
+}
+
+/* Mensaje cuando no hay rutas */
+.no-routes-msg {
+    grid-column: span 5; /* Ocupa todo el ancho del grid */
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 0.8rem;
+    margin-top: 20px;
+}
+
+
+.route-item:hover {
+    background-color: #2a2a2a;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .route-item.active {
     border-color: var(--accent-primary);
     background: rgba(0, 194, 199, 0.05);
+    box-shadow: 0 4px 10px rgba(0, 194, 199, 0.15);
 }
 
-.route-marker {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
+.route-marker { width: 12px; height: 12px; border-radius: 50%; }
 .route-details .code { font-weight: bold; display: block; }
 .route-details .dest { font-size: 0.85rem; }
 
-/* Badges corregidos con color #00C2C7 */
+/* Badges */
 .badge {
     padding: 4px 10px;
     border-radius: 20px;
@@ -199,14 +277,11 @@ input[type="color"] {
     margin-left: auto;
     border: 1px solid var(--accent-primary);
     background: rgba(0, 194, 199, 0.1);
-}
-
-.badge.on-time, .badge.delayed {
     color: var(--accent-primary) !important;
 }
 
 /* ===========================================================
-   MAPA E ICONOS DE SEGUIMIENTO
+   MAPA Y LIVE TRACKING
    =========================================================== */
 .map-viewport { position: relative; border-left: 2px solid var(--bg-panel); }
 #map-tracking { height: 100%; width: 100%; background: #000; }
@@ -222,48 +297,14 @@ input[type="color"] {
     box-shadow: 0 0 15px var(--accent-primary);
 }
 
-.dest-icon-div {
-    color: #FF4757;
-    font-size: 28px;
-    filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
-}
-
-/* ===========================================================
-   OVERLAYS Y ANIMACIÓN LIVE TRACKING (PUNTITO)
-   =========================================================== */
-.map-overlay-top {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    display: flex;
-    gap: 15px;
-}
-
-.status-pill, .time-pill {
-    background: #1C1C1C;
-    padding: 10px 20px;
-    border-radius: 30px;
-    border: 1px solid var(--accent-primary);
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Estado por defecto: Inactivo (Gris o Rojo suave) */
 .dot {
-    width: 10px;
-    height: 10px;
-    background-color: #94a3b8; /* Gris azulado */
+    width: 10px; height: 10px;
+    background-color: #94a3b8;
     border-radius: 50%;
     display: inline-block;
     margin-right: 8px;
-    transition: all 0.3s ease;
 }
 
-/* Estado Activo: Verde y Parpadeando */
 .dot.active {
     background-color: #2ecc71;
     box-shadow: 0 0 10px #2ecc71;
@@ -279,30 +320,6 @@ input[type="color"] {
 /* ===========================================================
    FOOTER Y BOTONES
    =========================================================== */
-.sidebar-footer {
-    padding-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-}
-
-.btn-back {
-    color: var(--accent-secondary);
-    text-decoration: none;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 5px;
-}
-
-.btn-back:hover {
-    color: var(--text-white);
-    transform: translateX(-5px);
-    transition: 0.3s;
-}
-
-/* ===========================================================
-   BOTÓN INICIAR TRACKING
-   =========================================================== */
 .btn-start-tracking {
     width: 100%;
     padding: 14px;
@@ -311,38 +328,22 @@ input[type="color"] {
     background: linear-gradient(135deg, #00C2C7, #3AD1D6);
     color: white;
     font-weight: bold;
-    font-size: 0.95rem;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
     transition: 0.25s ease;
     box-shadow: 0 4px 15px rgba(0, 194, 199, 0.25);
-    margin-bottom: 5px; /* Pequeño margen final */
-    flex-shrink: 0; /* Evita que el botón se haga pequeño si hay muchas rutas */
+    flex-shrink: 0;
 }
 
-.btn-start-tracking:hover {
+.btn-start-tracking:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 194, 199, 0.35);
-    filter: brightness(1.05);
 }
 
-.btn-start-tracking:active {
-    transform: scale(0.98);
-}
+.btn-start-tracking:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ===========================================================
-   BOTÓN RETROCESO SUPERIOR
-   =========================================================== */
 .btn-back-icon {
-    width: 32px;  /* Antes 42px */
-    height: 32px; /* Antes 42px */
+    width: 32px; height: 32px;
     border-radius: 8px;
-    margin-bottom: 10px; /* Reducido para que todo lo de abajo suba */
-    font-size: 0.80rem;  /* Icono más pequeño */
-    /* Mantenemos el resto igual */
     background: var(--bg-panel);
     border: 1px solid rgba(255,255,255,0.08);
     color: var(--text-white);
@@ -350,54 +351,15 @@ input[type="color"] {
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    transition: all 0.25s ease;
+    transition: 0.25s ease;
 }
 
 .btn-back-icon:hover {
     background: var(--accent-primary);
     color: var(--bg-dark);
-    transform: translateX(-3px);
-    box-shadow: 0 0 15px rgba(0, 194, 199, 0.35);
 }
 
-.btn-start-tracking:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-/* ===========================================================
-   ANIMACIONES DE HOVER EN RUTAS (NUEVO)
-   =========================================================== */
-
-/* 1. Preparar el elemento base para transiciones suaves */
-.route-item {
-    cursor: pointer; /* Indica que se puede hacer clic */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Animación suave y natural */
-    position: relative; /* Necesario para que la sombra no se corte */
-    z-index: 1; /* Preparar para elevación */
-}
-
-/* 2. Efecto al pasar el cursor (Hover) */
-.route-item:hover {
-    background-color: #2a2a2a; /* Fondo un poco más claro que el card-bg original (#1C1C1C) */
-    transform: translateY(-3px) scale(1.02); /* Se eleva un poco y se expande un 2% */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Sombra más pronunciada para efecto de elevación */
-    z-index: 2; /* Se pone por encima de los otros items para que la sombra se vea bien */
-}
-
-/* 3. Asegurar que la ruta activa mantenga su identidad */
-.route-item.active {
-    border-color: var(--accent-primary);
-    background: rgba(0, 194, 199, 0.05);
-    /* Mantenemos una sombra persistente para la activa */
-    box-shadow: 0 4px 10px rgba(0, 194, 199, 0.15); 
-}
-
-/* 4. Efecto hover sobre un item ya activo */
-.route-item.active:hover {
-    background: rgba(0, 194, 199, 0.1); /* Un poco más intenso el fondo al hover */
-    box-shadow: 0 8px 15px rgba(0, 194, 199, 0.3); /* Sombra cyan más fuerte */
-    /* Mantenemos el scale y transform heredado de .route-item:hover */
+/* Hace que CUALQUIER cambio de posición en el marcador sea suave */
+.leaflet-marker-icon {
+    transition: all 1s linear !important; 
 }
