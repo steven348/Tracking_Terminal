@@ -46,6 +46,16 @@ $bg_color = $colores[$color_index];
             background-color: <?php echo $bg_color; ?>;
             border: 2px solid rgba(255,255,255,0.2);
         }
+        
+        /* Estilo para hacer clickeable el perfil */
+        .navbar__profile {
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+        
+        .navbar__profile:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -57,7 +67,8 @@ $bg_color = $colores[$color_index];
     </div>
     
     <div class="navbar__right">
-        <div class="navbar__profile">
+        <!-- Agregamos onclick al div del perfil -->
+        <div class="navbar__profile" onclick="window.location.href='/TRACKING_TERMINAL/views/layouts/perfil.php'">
             <?php if ($foto_perfil && $foto_perfil != 'default.png'): ?>
                 <img src="/TRACKING_TERMINAL/assets/img/profiles/<?php echo $foto_perfil; ?>" alt="Perfil" class="navbar__avatar">
             <?php else: ?>
