@@ -24,5 +24,49 @@ CREATE TABLE usuarios (
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
 
+-- 3. Gestión de Rutas
+CREATE TABLE rutas (
+    id_ruta INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_ruta VARCHAR(100) NOT NULL, -- Ej: "Ruta 111 - Ilobasco"
+    origen VARCHAR(100),
+    destino VARCHAR(100),
+    descripcion TEXT,
+    estado BOOLEAN DEFAULT TRUE
+);
+
+-- 4. Puntos Geográficos de la Ruta (Para procesar el KML)
+-- Aquí es donde se guardarán las coordenadas extraídas de tus archivos
+CREATE TABLE puntos_ruta (
+    id_punto INT AUTO_INCREMENT PRIMARY KEY,
+    id_ruta INT,
+    latitud DECIMAL(10, 8) NOT NULL,
+    longitud DECIMAL(11, 8) NOT NULL,
+    orden INT NOT NULL, -- Importante para dibujar la línea en el orden correcto
+    FOREIGN KEY (id_ruta) REFERENCES rutas(id_ruta) ON DELETE CASCADE
+);
+
+-- 5. Unidades de Transporte (Buses)
+CREATE TABLE buses (
+    id_bus INT AUTO_INCREMENT PRIMARY KEY,
+    placa VARCHAR(20) UNIQUE NOT NULL,
+    numero_unidad VARCHAR(20),
+    modelo VARCHAR(50),
+    id_ruta INT,
+    FOREIGN KEY (id_ruta) REFERENCES rutas(id_ruta) ON DELETE SET NULL
+);
+
+-- 6. Registro de Tracking en Tiempo Real
+CREATE TABLE trackings (
+    id_tracking INT AUTO_INCREMENT PRIMARY KEY,
+    id_bus INT,
+    latitud DECIMAL(10, 8) NOT NULL,
+    longitud DECIMAL(11, 8) NOT NULL,
+    velocidad DECIMAL(5, 2), -- Opcional: km/h
+    ultima_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_bus) REFERENCES buses(id_bus) ON DELETE CASCADE
+);
+
+
+
 -- INSERCIÓN DE DATOS INICIALES BÁSICOS
 INSERT INTO roles (nombre_rol) VALUES ('Administrador'), ('Usuario');
