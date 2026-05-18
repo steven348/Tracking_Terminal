@@ -31,12 +31,10 @@
         </div>
 
         <div class="control-group">
-            <label class="label-light">SELECCIONA TERMINAL</label>
+            <label class="label-light">SELECCIONA DEPARTAMENTO</label>
             <select id="terminalSelect" class="modern-select" style="width: 100%;">
-                <option value="" disabled selected>Buscar terminal...</option>
-                <option value="occidente">Cabanas</option>
-                <option value="oriente">Oriente</option>
-                <option value="centro">Centro</option>
+                <option value="" disabled selected>Buscar departamento...</option>
+                <option value="cabanas">cabanas</option>
 
             </select>
         </div>
@@ -47,6 +45,12 @@
                 <input type="color" id="routeColor" value="#00C2C7">
                 <span class="text-white">Personalizar trazado</span>
             </div>
+        </div>
+
+        <div class="control-group" id="directionGroup" style="display: none;">
+          <label class="label-light">SENTIDO DEL RECORRIDO</label>
+          <select id="directionSelect" class="modern-select" style="width: 100%;">
+        </select>
         </div>
 
         <div class="active-routes-list">
@@ -61,40 +65,23 @@
         </div>
     </aside>
 
-    <main class="map-viewport">
-        <div class="map-overlay-top">
-            <div class="status-pill text-white" id="statusPillContainer">
-                <span class="dot" id="statusDot"></span> 
-                <span id="statusText">Inactive Tracking</span>
-            </div>
-            <div class="time-pill text-white" id="liveClock">--:-- --</div>
+  <main class="map-viewport">
+    <div class="map-overlay-top">
+        <div id="statusPillContainer">
+            <span class="dot" id="statusDot"></span> 
+            <span id="statusText">Inactive Tracking</span>
+            <span class="time-divider">|</span>
+            <div class="time-pill" id="liveClock">--:-- --</div>
         </div>
-        <div id="map-tracking"></div>
-    </main>
+    </div>
+    <div id="map-tracking"></div>
+</main>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/Tracking_Terminal/assets/js/realizar_tracking.js"></script>
-
-
-<script>
-    $(document).ready(function() {
-    $('#terminalSelect').select2({
-        placeholder: "Buscar terminal...",
-        allowClear: false
-    });
-
-    // Refuerzo para cuando Select2 sobreescribe estilos dinámicamente
-    $(document).on('select2:open', function() {
-        setTimeout(function() {
-            $('.select2-results__option[aria-selected="true"]')
-                .css({ 'background-color': '#00C2C7', 'color': '#071A2D' });
-        }, 10);
-    });
-});
-</script>
 
 </body>
 </html>
