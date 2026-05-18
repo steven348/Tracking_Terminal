@@ -1,332 +1,185 @@
-document.addEventListener('DOMContentLoaded', () => {
+// =====================================================
+// VARIABLES GLOBALES
+// =====================================================
+var rutaLine      = null;
+var busMarker     = null;
+var destMarker    = null;
+var selectedRoute = null;
+var mapInstance   = null;
 
-    // =====================================================
-    // INICIALIZACIÓN SELECTORES SELECT2
-    // =====================================================
-    $('#terminalSelect').select2({
-        placeholder: "Buscar terminal...",
-        allowClear: false,
-        width: '100%'
-    });
+// =====================================================
+// DATOS DE TERMINALES Y RUTAS
+// =====================================================
+var terminalRoutes = {
 
-    // Inicializar el nuevo selector de dirección
-    $('#directionSelect').select2({
-        minimumResultsForSearch: Infinity,
-        width: '100%'
-    });
-
-    // Escucha de cambios en terminal
-    $('#terminalSelect').on('change', function () {
-        loadRoutes($(this).val());
-    });
-
-    // Escucha de cambios en dirección (actualiza mapa al cambiar sentido)
-    $('#directionSelect').on('change', function () {
-        if (selectedRoute && rutaLine) {
-            renderTracking();
+    occidente: [
+        {
+            id: 'CAB-111',
+            nombre: 'Ilobasco - Terminal de Oriente Plaza Amanecer en San Salvador',
+            coords: [[13.695192,-89.139523],[13.695288,-89.139925],[13.695407,-89.140442],[13.696341,-89.140196],[13.69715,-89.13997],[13.696977,-89.139294],[13.696709,-89.138182],[13.696519,-89.137296],[13.696293,-89.136284],[13.696168,-89.135422],[13.695853,-89.133631],[13.69568,-89.13262],[13.695353,-89.130693],[13.695198,-89.129866],[13.694824,-89.12779],[13.694544,-89.126232],[13.694378,-89.12503],[13.694387,-89.124598],[13.694423,-89.124167],[13.694578,-89.123317],[13.695014,-89.121723],[13.695341,-89.120325],[13.695662,-89.119308],[13.696186,-89.117368],[13.69684,-89.114918],[13.697197,-89.113746],[13.697661,-89.111961],[13.698173,-89.110034],[13.698982,-89.107202],[13.699262,-89.106008],[13.699791,-89.104547],[13.700224,-89.103622],[13.700711,-89.102732],[13.701068,-89.102168],[13.701645,-89.10135],[13.702057,-89.100825],[13.703279,-89.099503],[13.704517,-89.098104],[13.706154,-89.096419],[13.708048,-89.09443],[13.709028,-89.093364],[13.710193,-89.091985],[13.711018,-89.090912],[13.711596,-89.090041],[13.712204,-89.089019],[13.712789,-89.087985],[13.713073,-89.087463],[13.714053,-89.085236],[13.714767,-89.083132],[13.715652,-89.080515],[13.716166,-89.079021],[13.716734,-89.077716],[13.717105,-89.076944],[13.717699,-89.075807],[13.718366,-89.074594],[13.71882,-89.073753],[13.719714,-89.072064],[13.720154,-89.071216],[13.721112,-89.069402],[13.722077,-89.06759],[13.722448,-89.067038],[13.722784,-89.066848],[13.723254,-89.066746],[13.723914,-89.066871],[13.724549,-89.067298],[13.725014,-89.067408],[13.725488,-89.067347],[13.727216,-89.066896],[13.728996,-89.066477],[13.73108,-89.065972],[13.731578,-89.065836],[13.732431,-89.065721],[13.733118,-89.065745],[13.733626,-89.065834],[13.734265,-89.065615],[13.734289,-89.065225],[13.733957,-89.062115],[13.734104,-89.06062],[13.734825,-89.056501],[13.735403,-89.053299],[13.735931,-89.050444],[13.736416,-89.047678],[13.736958,-89.043534],[13.737391,-89.041657],[13.737838,-89.040479],[13.738525,-89.039317],[13.738868,-89.039002],[13.739249,-89.038736],[13.739663,-89.038524],[13.740246,-89.038354],[13.740846,-89.038282],[13.741791,-89.038216],[13.74231,-89.0381],[13.742934,-89.037855],[13.743512,-89.037516],[13.744452,-89.036503],[13.745789,-89.034619],[13.746466,-89.033241],[13.746718,-89.03208],[13.746741,-89.030983],[13.746622,-89.027452],[13.746855,-89.025354],[13.747497,-89.022674],[13.747859,-89.020718],[13.74804,-89.01912],[13.748282,-89.017368],[13.748408,-89.014829],[13.748033,-89.014053],[13.747664,-89.013614],[13.745692,-89.011695],[13.742887,-89.009052],[13.742314,-89.008435],[13.741892,-89.007714],[13.741556,-89.006487],[13.741818,-89.00485],[13.742571,-89.003629],[13.743436,-89.002328],[13.743801,-89.000529],[13.743896,-88.998436],[13.744092,-88.994617],[13.744324,-88.99072],[13.744215,-88.988894],[13.742647,-88.986592],[13.740678,-88.984718],[13.739905,-88.983755],[13.738745,-88.981494],[13.737866,-88.980665],[13.737023,-88.980336],[13.736116,-88.979982],[13.735363,-88.979127],[13.734337,-88.977574],[13.733013,-88.975438],[13.731071,-88.973529],[13.730099,-88.972248],[13.729646,-88.970893],[13.729516,-88.969466],[13.729779,-88.967943],[13.730428,-88.966767],[13.731226,-88.965396],[13.731387,-88.96468],[13.731439,-88.963915],[13.731233,-88.962407],[13.730814,-88.961348],[13.730049,-88.960447],[13.728437,-88.958326],[13.727872,-88.956716],[13.727877,-88.955346],[13.728287,-88.95399],[13.729709,-88.951439],[13.729912,-88.950006],[13.729499,-88.94792],[13.728308,-88.944658],[13.728148,-88.941557],[13.728817,-88.938803],[13.729616,-88.935806],[13.729773,-88.932593],[13.729532,-88.930891],[13.728915,-88.928629],[13.727257,-88.925901],[13.723230,-88.92163],[13.722458,-88.919528],[13.722758,-88.917202],[13.723782,-88.913069],[13.724737,-88.909086],[13.724305,-88.906223],[13.723916,-88.904355],[13.724258,-88.902097],[13.725929,-88.90037],[13.727317,-88.899433],[13.728671,-88.898228],[13.729578,-88.897016],[13.730060,-88.895427],[13.729739,-88.890926],[13.730136,-88.889075],[13.729337,-88.883003],[13.733839,-88.880956],[13.738378,-88.878853],[13.739769,-88.877821],[13.741976,-88.873599],[13.743308,-88.872181],[13.749933,-88.869393],[13.752833,-88.868446],[13.756604,-88.870906],[13.759812,-88.871322],[13.763914,-88.871094],[13.768114,-88.873164],[13.770466,-88.873222],[13.772625,-88.872222],[13.77366,-88.871815],[13.778692,-88.869602],[13.780691,-88.869338],[13.783589,-88.871079],[13.787015,-88.873121],[13.790157,-88.873074],[13.792861,-88.870637],[13.796652,-88.867882],[13.800913,-88.866832],[13.805610,-88.865683],[13.810585,-88.864491],[13.815282,-88.863335],[13.820163,-88.862152],[13.825208,-88.863037],[13.826659,-88.862189],[13.826302,-88.860582],[13.826641,-88.859287],[13.830718,-88.858678],[13.833250,-88.858031],[13.837133,-88.854481],[13.839698,-88.852555],[13.841392,-88.850999],[13.8435,-88.849359],[13.844606,-88.85003]]
+        },
+        {
+            id: 'CAB-111-1',
+            nombre: 'Ilobasco - Terminal de Oriente (Variante)',
+            coords: [[13.695192,-89.139523],[13.695865,-89.139083],[13.696743,-89.139005],[13.696579,-89.138291],[13.695715,-89.133577],[13.694544,-89.126905],[13.694411,-89.123415],[13.695204,-89.12036],[13.696239,-89.116836],[13.697584,-89.111874],[13.698529,-89.10847],[13.699791,-89.104547],[13.700541,-89.103019],[13.701848,-89.101085],[13.703279,-89.099503],[13.706154,-89.096419],[13.709028,-89.093364],[13.711284,-89.090547],[13.712499,-89.088504],[13.714767,-89.083132],[13.716166,-89.079021],[13.717699,-89.075807],[13.71882,-89.073753],[13.720154,-89.071216],[13.722077,-89.06759],[13.722784,-89.066848],[13.724085,-89.066962],[13.725488,-89.067347],[13.728996,-89.066477],[13.731578,-89.065836],[13.733368,-89.064935],[13.734722,-89.056355],[13.736074,-89.048884],[13.736795,-89.043641],[13.737524,-89.040812],[13.738912,-89.038766],[13.740291,-89.038194],[13.741798,-89.03805],[13.743557,-89.037289],[13.745367,-89.034974],[13.746361,-89.033155],[13.746437,-89.028425],[13.746741,-89.025202],[13.747746,-89.020596],[13.748287,-89.016563],[13.748037,-89.014293],[13.745789,-89.012001],[13.742657,-89.009014],[13.741517,-89.007],[13.741632,-89.004871],[13.743493,-89.001738],[13.743921,-88.995179],[13.744183,-88.990414],[13.742137,-88.986304],[13.740626,-88.984858],[13.738976,-88.98214],[13.737967,-88.980879],[13.736277,-88.9802],[13.734826,-88.97891],[13.733705,-88.976695],[13.731712,-88.974326],[13.730075,-88.972536],[13.729389,-88.969515],[13.729814,-88.967444],[13.730576,-88.966275],[13.731259,-88.964578],[13.731073,-88.962298],[13.730287,-88.960752],[13.728681,-88.959307],[13.727774,-88.9584],[13.727138,-88.955007],[13.727667,-88.953739],[13.724243,-88.947111],[13.726694,-88.943398],[13.725723,-88.941454],[13.725238,-88.939015],[13.724881,-88.932906],[13.722083,-88.928441],[13.721526,-88.926081],[13.720949,-88.923439],[13.720195,-88.921481],[13.721098,-88.91867],[13.722648,-88.917034],[13.723964,-88.911763],[13.724595,-88.908717],[13.724075,-88.902491],[13.725605,-88.900443],[13.727532,-88.899286],[13.729093,-88.897618],[13.729963,-88.895091],[13.729504,-88.890397],[13.730184,-88.887971],[13.729337,-88.883003],[13.736427,-88.879776],[13.739584,-88.878047],[13.741976,-88.873599],[13.746173,-88.870934],[13.752833,-88.868446],[13.757377,-88.871409],[13.763914,-88.871094],[13.768114,-88.873164],[13.770612,-88.873171],[13.774659,-88.871708],[13.778692,-88.869602],[13.780691,-88.869338],[13.783589,-88.871079],[13.787665,-88.873385],[13.790657,-88.872746],[13.794575,-88.868952],[13.799093,-88.867275],[13.805610,-88.865683],[13.813783,-88.863706],[13.820163,-88.862152],[13.826093,-88.862995],[13.82667,-88.861933],[13.830718,-88.858678],[13.835306,-88.856108],[13.838684,-88.85354],[13.841701,-88.850894],[13.844442,-88.849157],[13.844606,-88.85003]]
+        },
+        {
+            id: 'CAB-112',
+            nombre: 'Sensuntepeque - Terminal de Oriente Plaza Amanecer',
+            coords: [[13.695192,-89.139523],[13.696079,-89.139102],[13.696579,-89.138291],[13.695715,-89.133577],[13.694544,-89.126905],[13.694411,-89.123415],[13.695204,-89.12036],[13.696239,-89.116836],[13.697584,-89.111874],[13.698529,-89.10847],[13.699262,-89.106008],[13.700224,-89.103622],[13.701447,-89.101619],[13.703279,-89.099503],[13.706154,-89.096419],[13.709028,-89.093364],[13.711018,-89.090912],[13.712499,-89.088504],[13.714767,-89.083132],[13.715652,-89.080515],[13.716917,-89.077329],[13.71882,-89.073753],[13.720154,-89.071216],[13.722077,-89.06759],[13.722784,-89.066848],[13.724085,-89.066962],[13.725488,-89.067347],[13.728996,-89.066477],[13.731936,-89.06577],[13.733471,-89.064607],[13.734722,-89.056355],[13.736397,-89.046942],[13.736795,-89.043641],[13.737607,-89.040609],[13.738695,-89.038938],[13.739669,-89.038375],[13.740772,-89.038124],[13.742315,-89.037934],[13.744248,-89.036586],[13.746061,-89.033864],[13.746437,-89.028425],[13.746895,-89.024421],[13.747529,-89.021889],[13.748109,-89.017479],[13.748165,-89.014548],[13.745789,-89.012001],[13.742421,-89.008765],[13.741518,-89.00716],[13.741745,-89.004599],[13.743443,-89.001895],[13.743725,-88.999075],[13.744207,-88.990093],[13.743469,-88.987678],[13.740496,-88.984728],[13.738903,-88.982001],[13.737194,-88.980504],[13.735574,-88.97978],[13.733705,-88.976695],[13.731276,-88.973928],[13.729776,-88.971913],[13.729388,-88.96972],[13.729696,-88.967719],[13.730836,-88.965875],[13.731283,-88.964388],[13.731073,-88.962298],[13.729309,-88.959828],[13.727774,-88.9584],[13.727189,-88.955566],[13.727845,-88.953389],[13.724243,-88.947111],[13.725797,-88.944654],[13.726646,-88.941739],[13.725723,-88.941454],[13.725391,-88.938268],[13.724881,-88.932906],[13.722414,-88.929876],[13.722302,-88.927521],[13.721461,-88.925934],[13.720835,-88.922687],[13.720156,-88.920595],[13.721353,-88.918596],[13.722877,-88.916115],[13.724139,-88.911223],[13.724571,-88.909],[13.723913,-88.903004],[13.724553,-88.90156],[13.726033,-88.900159],[13.727744,-88.899134],[13.729185,-88.897457],[13.729873,-88.895667],[13.729612,-88.891164],[13.730184,-88.887971],[13.729337,-88.883003],[13.736427,-88.879776],[13.739584,-88.878047],[13.741976,-88.873599],[13.746173,-88.870934],[13.752833,-88.868446],[13.757377,-88.871409],[13.763914,-88.871094],[13.768114,-88.873164],[13.770755,-88.873114],[13.773124,-88.872007],[13.776194,-88.871408],[13.779088,-88.86932],[13.780691,-88.869338],[13.783589,-88.871079],[13.787665,-88.873385],[13.790157,-88.873074],[13.794832,-88.868717],[13.799093,-88.867275],[13.807366,-88.86524],[13.815282,-88.863335],[13.818116,-88.862642],[13.820557,-88.855989],[13.824431,-88.843462],[13.826563,-88.835261],[13.829014,-88.828757],[13.824731,-88.815352],[13.825201,-88.811414],[13.82416,-88.801575],[13.815922,-88.797978],[13.813476,-88.794206],[13.815566,-88.789755],[13.814173,-88.778106],[13.81581,-88.77518],[13.81815,-88.766684],[13.825916,-88.759146],[13.824902,-88.751194],[13.826707,-88.746308],[13.831369,-88.742015],[13.833882,-88.739588],[13.835081,-88.718787],[13.833225,-88.711092],[13.833539,-88.699585],[13.830984,-88.690906],[13.832326,-88.685081],[13.834586,-88.683],[13.838712,-88.6747],[13.840901,-88.671238],[13.845991,-88.66918],[13.851442,-88.668799],[13.855356,-88.664111],[13.862482,-88.65821],[13.868764,-88.651322],[13.870664,-88.647704],[13.867265,-88.637712],[13.865578,-88.629237],[13.870752,-88.626691],[13.870866,-88.627139]]
+        },
+        {
+            id: 'CAB-112-A',
+            nombre: 'Sensuntepeque - Terminal de Oriente (Variante A)',
+            coords: [[13.695192,-89.139523],[13.696079,-89.139102],[13.696579,-89.138291],[13.695551,-89.132644],[13.694544,-89.126905],[13.694292,-89.124069],[13.694832,-89.121916],[13.696239,-89.116836],[13.697584,-89.111874],[13.698529,-89.10847],[13.699547,-89.105147],[13.700541,-89.103019],[13.701848,-89.101085],[13.703279,-89.099503],[13.706154,-89.096419],[13.709326,-89.093025],[13.711018,-89.090912],[13.712499,-89.088504],[13.714339,-89.084446],[13.716166,-89.079021],[13.717699,-89.075807],[13.71882,-89.073753],[13.720154,-89.071216],[13.722448,-89.067038],[13.724085,-89.066962],[13.725206,-89.067404],[13.728996,-89.066477],[13.732286,-89.06573],[13.733471,-89.064607],[13.735141,-89.05408],[13.736397,-89.046942],[13.736795,-89.043641],[13.737607,-89.040609],[13.738695,-89.038938],[13.740450,-89.038164],[13.742144,-89.03798],[13.743692,-89.037177],[13.745367,-89.034974],[13.746224,-89.033515],[13.746437,-89.028425],[13.746741,-89.025202],[13.747529,-89.021889],[13.748109,-89.017479],[13.748037,-89.014293],[13.745789,-89.012001],[13.742309,-89.008634],[13.741517,-89.007],[13.741881,-89.004338],[13.743257,-89.002354],[13.743725,-88.999075],[13.744183,-88.990414],[13.743469,-88.987678],[13.740496,-88.984728],[13.738651,-88.981602],[13.737194,-88.980504],[13.735574,-88.97978],[13.733705,-88.976695],[13.731276,-88.973928],[13.730164,-88.972685],[13.729394,-88.969926],[13.729526,-88.968292],[13.730755,-88.966012],[13.731283,-88.964388],[13.731073,-88.962298],[13.729309,-88.959828],[13.727831,-88.958529],[13.727138,-88.955007],[13.727941,-88.953196],[13.724958,-88.945475],[13.726826,-88.943054],[13.725723,-88.941454],[13.725398,-88.938141],[13.724881,-88.932906],[13.722414,-88.929876],[13.722311,-88.927309],[13.720939,-88.923111],[13.720195,-88.921481],[13.721098,-88.91867],[13.722877,-88.916115],[13.724571,-88.909],[13.723776,-88.904469],[13.724461,-88.901705],[13.725887,-88.900248],[13.727532,-88.899286],[13.729272,-88.897293],[13.729989,-88.894703],[13.729504,-88.890397],[13.730184,-88.887971],[13.729337,-88.883003],[13.736427,-88.879776],[13.739769,-88.877821],[13.741976,-88.873599],[13.746173,-88.870934],[13.752833,-88.868446],[13.757377,-88.871409],[13.763914,-88.871094],[13.768114,-88.873164],[13.770612,-88.873171],[13.773124,-88.872007],[13.776451,-88.871301],[13.779088,-88.86932],[13.780691,-88.869338],[13.783589,-88.871079],[13.787665,-88.873385],[13.790657,-88.872746],[13.794832,-88.868717],[13.800913,-88.866832],[13.808615,-88.864948],[13.816717,-88.862999],[13.820557,-88.855989],[13.826239,-88.835829],[13.829014,-88.828757],[13.824731,-88.815352],[13.82416,-88.801575],[13.813476,-88.794206],[13.815566,-88.789755],[13.81815,-88.766684],[13.825916,-88.759146],[13.824902,-88.751194],[13.826707,-88.746308],[13.831369,-88.742015],[13.833868,-88.732064],[13.835081,-88.718787],[13.833539,-88.699585],[13.830984,-88.690906],[13.834467,-88.680898],[13.838051,-88.675373],[13.840901,-88.671238],[13.849408,-88.669453],[13.857866,-88.662481],[13.868764,-88.651322],[13.868514,-88.640615],[13.865578,-88.629237],[13.871028,-88.626867]]
         }
+    ],
+
+    oriente: [
+        { id: 'ORI-101', nombre: 'San Miguel',  coords: [[13.6929,-89.2182],[13.5500,-88.7000],[13.4833,-88.1833]] },
+        { id: 'ORI-102', nombre: 'Usulután',    coords: [[13.6929,-89.2182],[13.5000,-88.6000],[13.3500,-88.4500]] }
+    ],
+
+    centro: [
+        { id: 'CEN-201', nombre: 'Centro - Ruta 1', coords: [[13.6929,-89.2182],[13.7000,-89.1500],[13.7100,-89.1000]] }
+    ]
+};
+
+// =====================================================
+// FUNCIÓN: CARGAR RUTAS
+// =====================================================
+function loadRoutes(terminal) {
+    var container    = document.getElementById('routesContainer');
+    var countEl      = document.getElementById('routeCount');
+    var startBtn     = document.getElementById('startTrackingBtn');
+
+    container.innerHTML = '';
+    selectedRoute       = null;
+    startBtn.disabled   = true;
+    clearMap();
+
+    if (!terminal) {
+        container.innerHTML    = '<p class="no-routes-msg">Selecciona una terminal</p>';
+        countEl.textContent    = '0 routes';
+        return;
+    }
+
+    var routes = terminalRoutes[terminal] || [];
+    countEl.textContent = routes.length + ' routes';
+
+    if (routes.length === 0) {
+        container.innerHTML = '<p class="no-routes-msg">Sin rutas disponibles</p>';
+        return;
+    }
+
+    routes.forEach(function(route) {
+        var sq        = document.createElement('div');
+        sq.className  = 'route-square';
+        sq.textContent = route.id.substring(route.id.indexOf('-') + 1);
+        sq.title      = route.nombre;
+
+        sq.addEventListener('click', function() {
+            document.querySelectorAll('.route-square')
+                    .forEach(function(el){ el.classList.remove('active'); });
+            sq.classList.add('active');
+            selectedRoute     = route;
+            startBtn.disabled = false;
+        });
+
+        container.appendChild(sq);
     });
+}
 
-    // Refuerzo visual para menús desplegables de Select2
-    $(document).on('select2:open', function() {
-        setTimeout(function() {
-            $('.select2-results__option[aria-selected="true"]')
-                .css({ 'background-color': '#00C2C7', 'color': '#071A2D' });
-        }, 10);
-    });
+// =====================================================
+// FUNCIÓN: LIMPIAR MAPA
+// =====================================================
+function clearMap() {
+    if (!mapInstance) return;
+    if (rutaLine   && mapInstance.hasLayer(rutaLine))   mapInstance.removeLayer(rutaLine);
+    if (busMarker  && mapInstance.hasLayer(busMarker))  mapInstance.removeLayer(busMarker);
+    if (destMarker && mapInstance.hasLayer(destMarker)) mapInstance.removeLayer(destMarker);
+    rutaLine = busMarker = destMarker = null;
+}
 
-    // =====================================================
-    // CONFIGURACIÓN DEL MAPA
-    // =====================================================
-    const map = L.map('map-tracking', {
-        zoomControl: false
-    }).setView([13.6929, -89.2182], 8);
+// =====================================================
+// FUNCIÓN: DIBUJAR TRACKING
+// =====================================================
+function renderTracking() {
+    if (!selectedRoute || !mapInstance) return;
+    clearMap();
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+    var color  = document.getElementById('routeColor').value;
+    var coords = selectedRoute.coords;
 
-    // =====================================================
-    // ELEMENTOS DEL DOM
-    // =====================================================
-    const colorPicker = document.getElementById('routeColor');
-    const routesContainer = document.getElementById('routesContainer');
-    const routeCount = document.getElementById('routeCount');
-    const startTrackingBtn = document.getElementById('startTrackingBtn');
-
-    // =====================================================
-    // VARIABLES DE ESTADO
-    // =====================================================
-    let rutaLine = null;
-    let busMarker = null;
-    let destMarker = null;
-    let selectedRoute = null;
-
-    // =====================================================
-    // ICONOS DE LEAFLET
-    // =====================================================
-    const busIcon = L.divIcon({
+    var busIcon = L.divIcon({
         html: '<i class="fas fa-bus"></i>',
         className: 'bus-icon-div',
         iconSize: [35, 35],
         iconAnchor: [17, 17]
     });
 
-    const destIcon = L.divIcon({
+    var destIcon = L.divIcon({
         html: '<i class="fas fa-location-dot"></i>',
         className: 'dest-icon-div',
         iconSize: [30, 30],
         iconAnchor: [15, 30]
     });
 
-    // =====================================================
-    // BASE DE DATOS LOCAL
-    // =====================================================
-    const terminalRoutes = {
-        cabanas: [
-            {
-                id: 'CAB-111',
-                nombre: 'Ilobasco - Terminal de Oriente',
-                jsonPath: '/tracking_terminal/assets/rutas/111.json',
-            },
-            {
-                id: 'CAB-111-1',
-                nombre: 'Ilobasco - Terminal de Oriente',
-                jsonPath: '/tracking_terminal/assets/rutas/111-1.json',
-            },
-            {
-                id: 'CAB-112',
-                nombre: 'Sensuntepeque - Terminal de Oriente',
-                jsonPath: '/tracking_terminal/assets/rutas/112.json',
-            },
-            {
-                id: 'CAB-112-A',
-                nombre: 'Sensuntepeque - Terminal de Oriente',
-                jsonPath: '/tracking_terminal/assets/rutas/112-A.json',
-            }
-        ],
-        oriente: [
-            {
-                id: 'ORI-101',
-                nombre: 'San Miguel - Terminal de Oriente',
-                coords: [
-                    [13.6929, -89.2182],
-                    [13.5500, -88.7000],
-                    [13.4833, -88.1833]
-                ]
-            },
-            {
-                id: 'ORI-102',
-                nombre: 'Usulután - Terminal de Oriente',
-                coords: [
-                    [13.6929, -89.2182],
-                    [13.5000, -88.6000],
-                    [13.3500, -88.4500]
-                ]
-            }
-        ]
-    };
+    rutaLine = L.polyline(coords, {
+        color: color,
+        weight: 5,
+        opacity: 0.8,
+        dashArray: '8, 12'
+    }).addTo(mapInstance);
 
-    // =====================================================
-    // CONTROLADOR DE INTERFAZ
-    // =====================================================
-    function loadRoutes(terminal) {
-        if (!terminal || terminal === "") {
-            routesContainer.innerHTML = '<p class="no-routes-msg">Selecciona una terminal para ver las rutas</p>';
-            routeCount.textContent = '0 routes';
-            return;
-        }
+    destMarker = L.marker(coords[coords.length - 1], { icon: destIcon }).addTo(mapInstance);
+    busMarker  = L.marker(coords[0], { icon: busIcon }).addTo(mapInstance);
 
-        routesContainer.innerHTML = '';
-        selectedRoute = null; 
-        startTrackingBtn.disabled = true;
-        $('#directionGroup').hide(); 
-        clearMap(); 
+    mapInstance.fitBounds(rutaLine.getBounds(), { padding: [40, 40] });
+    animateBus(busMarker, coords, 0, 800);
+}
 
-        const routes = terminalRoutes[terminal] || [];
-        routeCount.textContent = `${routes.length} routes`;
+// =====================================================
+// FUNCIÓN: ANIMAR BUS
+// =====================================================
+function animateBus(marker, coords, index, speed) {
+    if (index >= coords.length - 1) return;
+    marker.setLatLng(coords[index + 1]);
+    setTimeout(function() {
+        animateBus(marker, coords, index + 1, speed);
+    }, speed);
+}
 
-        if (routes.length === 0) {
-            routesContainer.innerHTML = '<p class="no-routes-msg">No hay rutas registradas para esta terminal</p>';
-            return;
-        }
+// =====================================================
+// INICIALIZACIÓN AL CARGAR EL DOM
+// =====================================================
+document.addEventListener('DOMContentLoaded', function() {
 
-        routes.forEach((route) => {
-            const routeSquare = document.createElement('div');
-            routeSquare.className = 'route-square';
-            
-            const routeNumber = route.id.substring(route.id.indexOf('-') + 1);
-            routeSquare.textContent = routeNumber;
+    // MAPA
+    mapInstance = L.map('map-tracking', { zoomControl: false })
+                   .setView([13.6929, -89.2182], 8);
 
-            routeSquare.addEventListener('click', () => {
-                document.querySelectorAll('.route-square').forEach(item => {
-                    item.classList.remove('active');
-                });
-                
-                routeSquare.classList.add('active');
-                selectedRoute = route;
-                
-                configureDirectionOptions(route.nombre);
-                validateTracking();
-            });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(mapInstance);
 
-            routesContainer.appendChild(routeSquare);
-        });
-    }
-
-    function configureDirectionOptions(routeName) {
-        const parts = routeName.split(' - ');
-        const origin = parts[0] || 'Punto A';
-        const destination = parts[1] || 'Punto B';
-
-        const directionSelect = $('#directionSelect');
-        directionSelect.empty();
-        
-        // Mantener las etiquetas UI semánticas e intactas
-        directionSelect.append(new Option(`Ida: ${origin} ➔ ${destination}`, 'ida'));
-        directionSelect.append(new Option(`Regreso: ${destination} ➔ ${origin}`, 'vuelta'));
-        
-        directionSelect.trigger('change');
-        $('#directionGroup').fadeIn(200); 
-    }
-
-    function validateTracking() {
-        startTrackingBtn.disabled = !selectedRoute;
-    }
-
-    function clearMap() {
-        if (rutaLine && map.hasLayer(rutaLine)) map.removeLayer(rutaLine);
-        if (busMarker && map.hasLayer(busMarker)) map.removeLayer(busMarker);
-        if (destMarker && map.hasLayer(destMarker)) map.removeLayer(destMarker);
-    }
-
-    // =====================================================
-    // RENDERIZADO CON CORRECCIÓN DE SENTIDO GEOGRÁFICO
-    // =====================================================
-    async function renderTracking() {
-        if (!selectedRoute) return;
-
-        clearMap();
-        const chosenDirection = document.getElementById('directionSelect').value;
-
-        // Caso A: Coordenadas locales estáticas (Oriente)
-        if (selectedRoute.coords) {
-            let coordenadasListas = [...selectedRoute.coords];
-            
-            // Corrección: Como el array por defecto empieza en San Salvador (Terminal),
-            // si el usuario quiere ir de 'ida' (Municipio -> Terminal), hay que invertirlo.
-            if (chosenDirection === 'ida') {
-                coordenadasListas.reverse(); 
-            }
-
-            rutaLine = L.polyline(coordenadasListas, {
-                color: colorPicker.value,
-                weight: 5,
-                opacity: 0.8,
-                dashArray: '8, 12'
-            }).addTo(map);
-
-            busMarker = L.marker(coordenadasListas[0], { icon: busIcon }).addTo(map);
-            destMarker = L.marker(coordenadasListas[coordenadasListas.length - 1], { icon: destIcon }).addTo(map);
-            
-            map.fitBounds(rutaLine.getBounds(), { padding: [40, 40] });
-            animateBus(busMarker, coordenadasListas, 0, 80);
-            return;
-        }
-
-        // Caso B: Archivos GeoJSON remotos (Cabañas)
-        if (selectedRoute.jsonPath) {
-            try {
-                const response = await fetch(selectedRoute.jsonPath);
-                if (!response.ok) throw new Error("No se pudo cargar el archivo JSON.");
-                
-                const geoData = await response.json();
-                const coordenadasSucias = geoData.features[0].geometry.coordinates;
-                
-                // Mapear de [Lng, Lat] a [Lat, Lng]
-                let coordenadasListas = coordenadasSucias.map(punto => [punto[1], punto[0]]);
-
-                // Corrección idéntica: Invertimos el archivo para cumplir con la Ida (Municipio -> Terminal)
-                if (chosenDirection === 'ida') {
-                    coordenadasListas.reverse(); 
-                }
-
-                rutaLine = L.polyline(coordenadasListas, {
-                    color: colorPicker.value,
-                    weight: 5,
-                    opacity: 0.8,
-                    dashArray: '8, 12'
-                }).addTo(map);
-
-                busMarker = L.marker(coordenadasListas[0], { icon: busIcon }).addTo(map);
-                destMarker = L.marker(coordenadasListas[coordenadasListas.length - 1], { icon: destIcon }).addTo(map);
-                
-                map.fitBounds(rutaLine.getBounds(), { padding: [40, 40] });
-                animateBus(busMarker, coordenadasListas, 0, 80);
-
-            } catch (error) {
-                console.error("Error cargando el mapa de ruta:", error);
-                alert("Error crítico al leer las coordenadas del archivo JSON.");
-            }
-        }
-    }
-
-    // =====================================================
-    // ANIMACIÓN CONTINUA DEL BUSITO
-    // =====================================================
-    function animateBus(marker, coords, index, speed) {
-        if (index >= coords.length - 1) {
-            console.log("Llegada a destino exitosa");
-            return; 
-        }
-        const end = coords[index + 1];
-        marker.setLatLng(end);
-
-        setTimeout(() => {
-            if (busMarker === marker) { 
-                animateBus(marker, coords, index + 1, speed);
-            }
-        }, speed);
-    }
-
-    // =====================================================
-    // ACCIÓN: DISPARAR TRACKING EN VIVO
-    // =====================================================
-    startTrackingBtn.addEventListener('click', () => {
-        if (!selectedRoute) return;
-
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const statusPill = document.getElementById('statusPillContainer');
-
-        if (statusDot) statusDot.classList.add('active');
-        if (statusText) statusText.textContent = 'Live Tracking';
-        if (statusPill) statusPill.style.borderColor = '#2ecc71';
-
-        renderTracking();
+    // COLOR EN TIEMPO REAL
+    document.getElementById('routeColor').addEventListener('input', function() {
+        if (selectedRoute && rutaLine) renderTracking();
     });
 
-    colorPicker.addEventListener('input', () => {
-        if (selectedRoute && rutaLine) {
-            rutaLine.setStyle({ color: colorPicker.value });
-        }
-    });
-
-    // =====================================================
-    // CONTROL DEL RELOJ
-    // =====================================================
+    // RELOJ
     function updateClock() {
-        const clockEl = document.getElementById('liveClock');
-        if (clockEl) {
-            clockEl.innerText = new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
+        document.getElementById('liveClock').innerText =
+            new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    routesContainer.innerHTML = '<p class="no-routes-msg">Selecciona una terminal para ver las rutas</p>';
-    routeCount.textContent = '0 routes';
+    // ESTADO INICIAL
+    document.getElementById('routesContainer').innerHTML =
+        '<p class="no-routes-msg">Selecciona una terminal para ver las rutas</p>';
+    document.getElementById('routeCount').textContent = '0 routes';
+
+    console.log('Tracking JS listo');
 });
