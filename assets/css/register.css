@@ -429,6 +429,25 @@ body {
     transform: none;
 }
 
+/* ESTILOS PARA EL BOTÓN EN ESTADO LOADING */
+.btn-register.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-register.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* ENLACE PARA VOLVER AL LOGIN */
 .login-link {
     text-align: center;
@@ -511,6 +530,48 @@ body {
 .tracking-element i {
     margin-right: 6px;
     color: #2c7da0;
+}
+
+/* ESTILOS PARA MENSAJES DE ERROR */
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #f5c6cb;
+    font-family: 'Inter';
+    font-size: 14px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ESTILOS PARA MENSAJES DE ÉXITO (opcional) */
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #c3e6cb;
+    font-family: 'Inter';
+    font-size: 14px;
+    animation: slideDown 0.3s ease;
+}
+
+.success-message i {
+    margin-right: 8px;
+    color: #155724;
 }
 
 /* ============================================ */
@@ -673,6 +734,8 @@ body {
     }
     
     .btn-register {
+        width: 100%;
+        max-width: 260px;
         padding: 0.65rem;
         font-size: 0.85rem;
         gap: 8px;
@@ -733,10 +796,32 @@ body {
     }
 }
 
-/* ESTADOS */
-.btn-register.loading {
-    opacity: 0.7;
-    cursor: not-allowed;
+/* PANTALLAS EXTRA GRANDES */
+@media (min-width: 1400px) {
+    .register-wrapper {
+        max-width: 1200px;
+    }
+    
+    .flat-card {
+        padding: 2.5rem 3rem;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .profile-avatar i {
+        font-size: 80px;
+    }
+    
+    .brand-text h1 {
+        font-size: 2.2rem;
+    }
+    
+    .logo-img {
+        max-width: 75px;
+    }
 }
 
 /* AUTOCOMPLETADO */
@@ -753,6 +838,7 @@ input:-webkit-autofill:focus {
         padding-left: max(1rem, env(safe-area-inset-left));
         padding-right: max(1rem, env(safe-area-inset-right));
     }
+    
     .tracking-element {
         bottom: max(15px, env(safe-area-inset-bottom));
         left: max(20px, env(safe-area-inset-left));
@@ -769,4 +855,59 @@ input:-webkit-autofill:focus {
 /* FONDO DE LOGO */
 .logo-img {
     background: transparent;
+}
+
+/* ESTILOS ADICIONALES PARA MEJOR UX */
+.input-field input:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+}
+
+.btn-register:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* TRANSICIONES SUAVES PARA LOS CAMPOS */
+.input-field input,
+.btn-register,
+.checkmark,
+.upload-label {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* MEJORA EL CONTRASTE DEL TEXTO EN MÓVILES */
+@media (max-width: 768px) {
+    .input-field input {
+        font-size: 16px; /* Previene zoom automático en iOS */
+    }
+}
+
+/* ESTILO PARA EL BORDE DE LOS CAMPOS CUANDO ESTÁN VÁLIDOS */
+.input-field input:valid:not(:placeholder-shown) {
+    border-color: #28a745;
+}
+
+.input-field input:valid:not(:placeholder-shown) ~ i {
+    color: #28a745;
+}
+
+/* ESTILO PARA CUANDO EL CAMPO ES INVÁLIDO */
+.input-field input:invalid:not(:placeholder-shown) {
+    border-color: #dc3545;
+}
+
+.input-field input:invalid:not(:placeholder-shown) ~ i {
+    color: #dc3545;
+}
+
+/* OPCIONAL: OCULTAR EL ESTILO DE VALIDACIÓN SI LO PREFIERES */
+.input-field input:valid:not(:placeholder-shown),
+.input-field input:invalid:not(:placeholder-shown) {
+    border-color: #d4dfe6; /* Vuelve al color normal */
+}
+
+.input-field input:valid:not(:placeholder-shown) ~ i,
+.input-field input:invalid:not(:placeholder-shown) ~ i {
+    color: #8ba0ae; /* Vuelve al color normal */
 }

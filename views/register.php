@@ -1,4 +1,6 @@
 <?php
+// /TRACKING_TERMINAL/views/register.php
+
 $error_reg = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $root = dirname(__DIR__); 
@@ -50,8 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <?php if ($error_reg): ?>
-                <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #f5c6cb; font-family: 'Inter'; font-size: 14px;">
-                    <i class="fas fa-exclamation-circle"></i> <?php echo $error_reg; ?>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error_reg); ?>
                 </div>
             <?php endif; ?>
 
@@ -118,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
-                <button type="submit" class="btn-register">
+                <button type="submit" class="btn-register" id="btnSubmit">
                     <i class="fas fa-user-plus"></i>
                     <span>Registrarme</span>
                 </button>
@@ -135,5 +137,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="tracking-element">
         <i class="fas fa-satellite-dish"></i> TERMINAL ONLINE · REGISTRO SEGURO
     </div>
+
+    <script src="/TRACKING_TERMINAL/assets/js/register.js" defer></script>
+
 </body>
 </html>
