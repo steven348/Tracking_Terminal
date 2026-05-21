@@ -78,7 +78,6 @@
     overflow: hidden;
 }
 
-/* Scrollbar del sidebar */
 .admin-sidebar::-webkit-scrollbar {
     width: 6px;
 }
@@ -212,7 +211,7 @@
     margin-top: 18px;
 }
 
-/* Select2 Personalizado - Estado normal (sin cambios en hover) */
+/* Select2 Personalizado */
 .select2-container--default .select2-selection--single {
     background-color: var(--bg-panel) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -230,7 +229,6 @@
     transition: all 0.2s ease !important;
 }
 
-/* Color del placeholder */
 .select2-container--default .select2-selection--single .select2-selection__placeholder {
     color: var(--text-muted) !important;
 }
@@ -246,7 +244,6 @@
     transition: all 0.2s ease !important;
 }
 
-/* Hover del select2 - mantener como estaba originalmente */
 .select2-container--default .select2-selection--single:hover {
     background-color: var(--bg-panel) !important;
     border-color: var(--accent-primary) !important;
@@ -260,9 +257,7 @@
     border-color: var(--accent-primary) transparent transparent transparent !important;
 }
 
-/* ===========================================================
-   SELECT2 - ESTILO CUANDO HAY UNA OPCIÓN SELECCIONADA (FONDO CELESTE)
-   =========================================================== */
+/* SELECT2 - ESTILO CUANDO HAY SELECCIÓN */
 .select2-container--default .select2-selection--single.select-has-value {
     background-color: var(--accent-primary) !important;
     border-color: var(--accent-primary) !important;
@@ -277,21 +272,11 @@
     border-color: var(--bg-dark) transparent transparent transparent !important;
 }
 
-/* Hover cuando está seleccionado - mantener fondo celeste pero con tono más claro */
 .select2-container--default .select2-selection--single.select-has-value:hover {
     background-color: var(--accent-secondary) !important;
     border-color: var(--accent-secondary) !important;
 }
 
-.select2-container--default .select2-selection--single.select-has-value:hover .select2-selection__rendered {
-    color: var(--bg-dark) !important;
-}
-
-.select2-container--default .select2-selection--single.select-has-value:hover .select2-selection__arrow b {
-    border-color: var(--bg-dark) transparent transparent transparent !important;
-}
-
-/* Select2 Dropdown */
 .select2-dropdown {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--accent-primary) !important;
@@ -367,7 +352,6 @@ input[type="color"] {
     border-radius: 20px;
 }
 
-/* Contenedor de rutas */
 #routesContainer {
     display: flex;
     flex-wrap: wrap;
@@ -393,7 +377,6 @@ input[type="color"] {
     border-radius: 3px;
 }
 
-/* Loading de rutas */
 .loading-routes {
     text-align: center;
     padding: 30px 20px;
@@ -407,7 +390,6 @@ input[type="color"] {
     font-size: 1rem;
 }
 
-/* Cuadro de ruta */
 .route-square {
     aspect-ratio: 1 / 1;
     background: var(--bg-panel);
@@ -598,7 +580,6 @@ input[type="color"] {
     background: #0a0a0a;
 }
 
-/* Iconos personalizados para el mapa */
 .bus-icon-div {
     display: flex;
     align-items: center;
@@ -672,18 +653,9 @@ input[type="color"] {
 }
 
 @keyframes pulse-animation {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.3);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* ===========================================================
@@ -893,7 +865,6 @@ input[type="color"] {
     font-weight: 600;
 }
 
-/* Input del chat */
 .chat-input-container {
     display: flex;
     align-items: center;
@@ -950,7 +921,7 @@ input[type="color"] {
 }
 
 /* ===========================================================
-   LEAFLET (MAP AJUSTES)
+   LEAFLET
    =========================================================== */
 .leaflet-marker-icon {
     transition: all 0.5s linear !important;
@@ -988,7 +959,6 @@ input[type="color"] {
    RESPONSIVE
    =========================================================== */
 @media (max-width: 768px) {
-
     .admin-layout {
         grid-template-columns: 1fr;
     }
@@ -1055,26 +1025,16 @@ input[type="color"] {
 }
 
 /* ===========================================================
-   ANIMACIONES ADICIONALES
+   ANIMACIONES
    =========================================================== */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .route-square {
@@ -1085,7 +1045,6 @@ input[type="color"] {
     animation: spin 1s linear infinite;
 }
 
-/* Estado del tracking */
 .tracking-active .status-pill {
     border-color: var(--success);
 }
@@ -1095,7 +1054,7 @@ input[type="color"] {
 }
 
 /* ===========================================================
-   BADGES Y ETIQUETAS
+   BADGES Y TOOLTIPS
    =========================================================== */
 .badge {
     display: inline-flex;
@@ -1125,9 +1084,6 @@ input[type="color"] {
     border: 1px solid rgba(0, 194, 199, 0.3);
 }
 
-/* ===========================================================
-   TOOLTIPS
-   =========================================================== */
 [data-tooltip] {
     position: relative;
     cursor: help;

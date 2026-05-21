@@ -2,13 +2,10 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-// Incluir la conexión a la base de datos
 $pdo = require_once __DIR__ . '/../config/database.php';
 
-// Obtener el departamento desde la petición GET
 $departamento = isset($_GET['departamento']) ? $_GET['departamento'] : '';
 
-// Palabras clave por departamento
 $departamentoKeywords = [
     'CABAÑAS' => ['CABAÑAS', 'CABANAS', 'SENSUNTEPEQUE', 'ILOBASCO', 'SAN ISIDRO', 'VICTORIA', 'TEJUTEPEQUE'],
     'CUSCATLAN' => ['CUSCATLAN', 'CUSCATLÁN', 'COJUTEPEQUE', 'SAN PEDRO PERULAPÁN', 'TENANCINGO', 'SUCHITOTO', 'SAN RAFAEL CEDROS'],
@@ -16,26 +13,17 @@ $departamentoKeywords = [
     'centro' => ['SAN SALVADOR', 'SOYAPANGO', 'APOPA', 'MEJICANOS']
 ];
 
-// Si no se especifica departamento, devolver todas las rutas
 if (empty($departamento)) {
-    // Agrupar por nombre base (sin IDA/REGRESO)
     $sql = "SELECT id_ruta, nombre_ruta, origen, destino, descripcion 
-            FROM rutas 
-            WHERE estado = 1 
-            AND (nombre_ruta NOT LIKE '%REGRESO%' OR nombre_ruta NOT LIKE '%REGRESO%')
-            GROUP BY REPLACE(REPLACE(nombre_ruta, ' IDA', ''), ' REGRESO', '')
-            ORDER BY nombre_ruta";
+            FROM rutas WHERE estado = 1 ORDER BY nombre_ruta";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-    $rutas = $stmt->fetchAll();
-    
-    echo json_encode($rutas);
+    echo json_encode($stmt->fetchAll());
     exit;
 }
 
 $keyword = isset($departamentoKeywords[$departamento]) ? $departamentoKeywords[$departamento] : [$departamento];
 
-// Crear condiciones para buscar en origen, destino o descripción
 $conditions = [];
 $params = [];
 
@@ -49,18 +37,13 @@ foreach ($keyword as $index => $kw) {
     $params[$paramDesc] = '%' . $kw . '%';
 }
 
-// Seleccionar rutas únicas (una por número/base, sin duplicar IDA/REGRESO)
 $sql = "SELECT id_ruta, nombre_ruta, origen, destino, descripcion 
-        FROM rutas 
-        WHERE estado = 1 
+        FROM rutas WHERE estado = 1 
         AND (" . implode(" OR ", $conditions) . ")
-        AND (nombre_ruta NOT LIKE '%REGRESO%' OR nombre_ruta NOT LIKE '%REGRESO%')
         GROUP BY REPLACE(REPLACE(nombre_ruta, ' IDA', ''), ' REGRESO', '')
         ORDER BY nombre_ruta";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
-$rutas = $stmt->fetchAll();
-
-echo json_encode($rutas);
+echo json_encode($stmt->fetchAll());
 ?>

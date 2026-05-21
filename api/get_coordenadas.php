@@ -11,12 +11,7 @@ if ($id_ruta <= 0) {
     exit;
 }
 
-// IMPORTANTE: Ordenar por 'orden' ASC para mantener el sentido original de la ruta
-$sql = "SELECT latitud, longitud 
-        FROM puntos_ruta 
-        WHERE id_ruta = :id_ruta 
-        ORDER BY orden ASC";
-
+$sql = "SELECT latitud, longitud FROM puntos_ruta WHERE id_ruta = :id_ruta ORDER BY orden ASC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([':id_ruta' => $id_ruta]);
 $coordenadas = $stmt->fetchAll();
