@@ -37,7 +37,8 @@
                 <label class="label-light">SELECCIONA TERMINAL</label>
                 <select id="terminalSelect" style="width:100%;">
                     <option value="" disabled selected>Buscar terminal...</option>
-                    <option value="occidente">Cabañas</option>
+                    <option value="CABAÑAS">Cabañas</option>
+                    <option value="CUSCATLAN">Cuscatlán</option>
                     <option value="oriente">Oriente</option>
                     <option value="centro">Centro</option>
                 </select>
@@ -59,6 +60,30 @@
                 <div id="routesContainer">
                     <p class="no-routes-msg">Selecciona una terminal para ver las rutas</p>
                 </div>
+
+                <!-- Panel de dirección (IDA/REGRESO) - oculto inicialmente -->
+                <div id="directionPanel" style="display:none; margin-top: 15px;">
+                    <label class="label-light">SELECCIONA DIRECCIÓN</label>
+                    <div class="direction-buttons">
+                        <button class="direction-btn" data-direction="IDA">
+                            <i class="fas fa-arrow-right"></i> IDA
+                        </button>
+                        <button class="direction-btn" data-direction="REGRESO">
+                            <i class="fas fa-arrow-left"></i> REGRESO
+                        </button>
+                    </div>
+                    <div class="route-info" id="routeInfo" style="display:none; margin-top: 12px;">
+                        <div class="info-row">
+                            <span class="info-label">Origen:</span>
+                            <span class="info-value" id="infoOrigen">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Destino:</span>
+                            <span class="info-value" id="infoDestino">—</span>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="btn-start-tracking" id="startTrackingBtn" disabled>
                     <i class="fas fa-play"></i> Iniciar Tracking
                 </button>
@@ -71,11 +96,7 @@
 
             <div class="live-tracking-panel">
 
-                
-
-                <!-- TARJETAS -->
                 <div class="live-stats">
-
                     <div class="live-card">
                         <div class="live-card-top">
                             <span class="live-card-label">Terminal</span>
@@ -90,7 +111,7 @@
                             <i class="fas fa-road"></i>
                         </div>
                         <div class="live-card-value" id="liveRouteNumber">—</div>
-                        <div class="live-card-sub">En seguimiento</div>
+                        <div class="live-card-sub" id="liveDirection">—</div>
                     </div>
 
                     <div class="live-card">
@@ -163,127 +184,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/Tracking_Terminal/assets/js/realizar_tracking.js"></script>
-
-<script>
-$(document).ready(function () {
-
-    /* ── SELECT2 ── */
-    $('#terminalSelect').select2({
-        placeholder: "Buscar terminal...",
-        allowClear: false,
-        width: '100%'
-    });
-
-    $('#terminalSelect').on('change', function () {
-        var val = $(this).val();
-        if (val) loadRoutes(val);
-    });
-
-    /* ── TOGGLE SIDEBAR ── */
-    var layout    = document.getElementById('adminLayout');
-    var toggleBtn = document.getElementById('toggleSidebar');
-    var openBtn   = document.getElementById('openSidebar');
-
-    toggleBtn.addEventListener('click', function () {
-        layout.classList.add('sidebar-hidden');
-        openBtn.style.display = 'flex';
-    });
-
-    openBtn.addEventListener('click', function () {
-        layout.classList.remove('sidebar-hidden');
-        openBtn.style.display = 'none';
-    });
-
-    /* ── CHAT ── */
-    var chatMessages = document.getElementById('chatMessages');
-    var chatInput    = document.getElementById('chatInput');
-    var sendBtn      = document.getElementById('sendMessageBtn');
-
-    function getTime() {
-        var now  = new Date();
-        var h    = now.getHours();
-        var m    = String(now.getMinutes()).padStart(2, '0');
-        var ampm = h >= 12 ? 'PM' : 'AM';
-        h = h % 12 || 12;
-        return h + ':' + m + ' ' + ampm;
-    }
-
-    function addSystemMessage(text) {
-        var div = document.createElement('div');
-        div.className = 'chat-system-msg';
-        div.innerHTML = '<span>' + text + '</span>';
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function addOwnMessage(text) {
-        var div = document.createElement('div');
-        div.className = 'chat-message self';
-        div.innerHTML =
-            '<div class="chat-avatar">A</div>' +
-            '<div class="chat-content">' +
-                '<div class="chat-user">Administrador · ' + getTime() + '</div>' +
-                '<div class="chat-bubble">' + text + '</div>' +
-            '</div>';
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function sendMessage() {
-        var text = chatInput.value.trim();
-        if (!text) return;
-        addOwnMessage(text);
-        chatInput.value = '';
-        chatInput.focus();
-    }
-
-    sendBtn.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') sendMessage();
-    });
-
-    /* ── INICIAR TRACKING ── */
-    document.getElementById('startTrackingBtn').addEventListener('click', function () {
-
-        if (!selectedRoute) return;
-
-        var terminalLabel = {
-            occidente: 'Cabañas',
-            oriente:   'Oriente',
-            centro:    'Centro'
-        };
-
-        var termVal = $('#terminalSelect').val();
-
-        document.getElementById('liveTerminalName').textContent = terminalLabel[termVal] || termVal;
-        document.getElementById('liveRouteNumber').textContent  = selectedRoute.id;
-
-        document.getElementById('trackingConfigPanel').style.display = 'none';
-        document.getElementById('trackingLivePanel').style.display   = 'block';
-
-        document.getElementById('statusDot').classList.add('active');
-        document.getElementById('statusText').textContent = 'Live Tracking';
-        document.getElementById('statusPillContainer').style.borderColor = '#2ecc71';
-
-        chatMessages.innerHTML = '';
-        addSystemMessage('✅ Tracking iniciado · Ruta ' + selectedRoute.id);
-
-        renderTracking();
-    });
-
-    /* ── FINALIZAR TRACKING ── */
-    document.getElementById('finishTrackingBtn').addEventListener('click', function () {
-        document.getElementById('trackingLivePanel').style.display   = 'none';
-        document.getElementById('trackingConfigPanel').style.display = 'block';
-
-        document.getElementById('statusDot').classList.remove('active');
-        document.getElementById('statusText').textContent = 'Inactive Tracking';
-        document.getElementById('statusPillContainer').style.borderColor = '';
-    });
-
-});
-</script>
+<script src="/TRACKING_TERMINAL/assets/js/realizar_tracking.js"></script>
 
 </body>
 </html>
