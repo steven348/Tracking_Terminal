@@ -37,10 +37,10 @@
                 <label class="label-light">SELECCIONA TERMINAL</label>
                 <select id="terminalSelect" style="width:100%;">
                     <option value="" disabled selected>Buscar terminal...</option>
-                    <option value="CABAÑAS">Cabañas</option>
-                    <option value="CUSCATLAN">Cuscatlán</option>
-                    <option value="oriente">Oriente</option>
-                    <option value="centro">Centro</option>
+                    <option value="Cabañas">Cabañas</option>
+                    <option value="Cuscatlán">Cuscatlán</option>
+                    <option value="Oriente">Oriente</option>
+                    <option value="Centro">Centro</option>
                 </select>
             </div>
 

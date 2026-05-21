@@ -16,8 +16,56 @@ var lastSavedIndex    = 0;
 var animationSpeed    = 800;
 var isInitialized     = false;
 
+// Mapeo para mostrar textos amigables en el Select2
+var terminalDisplayNames = {
+    'CABAÑAS': 'Cabañas',
+    'CUSCATLAN': 'Cuscatlán',
+    'oriente': 'Oriente',
+    'centro': 'Centro'
+};
+
 // =====================================================
-// FUNCIÓN: CARGAR RUTAS DESDE LA BD (VERSIÓN CORREGIDA)
+// FUNCIÓN: GUARDAR TRACKING EN LA BD
+// =====================================================
+function saveTrackingToDatabase(lat, lng, currentPoint, totalPoints) {
+    if (!isTrackingActive) return;
+    if (!selectedRoute) return;
+    
+    var data = {
+        id_bus: 1, // Temporal, luego se asignará según la ruta
+        latitud: lat,
+        longitud: lng,
+        velocidad: 0,
+        ruta_nombre: selectedRoute.nombre,
+        direccion: selectedDirection,
+        punto_actual: currentPoint,
+        total_puntos: totalPoints
+    };
+    
+    fetch('/TRACKING_TERMINAL/api/save_tracking.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(result) {
+        if (result.success) {
+            console.log('📌 Tracking guardado - Punto:', currentPoint, '| Lat:', lat, '| Lng:', lng);
+        } else {
+            console.error('❌ Error al guardar tracking:', result.error);
+        }
+    })
+    .catch(function(error) {
+        console.error('❌ Error de red al guardar tracking:', error);
+    });
+}
+
+// =====================================================
+// FUNCIÓN: CARGAR RUTAS DESDE LA BD
 // =====================================================
 function loadRoutes(terminal) {
     console.log('loadRoutes llamado con terminal:', terminal);
@@ -27,19 +75,16 @@ function loadRoutes(terminal) {
     var startBtn = document.getElementById('startTrackingBtn');
     var directionPanel = document.getElementById('directionPanel');
 
-    // Si no hay container, salir
     if (!container) {
         console.error('No se encuentra el contenedor de rutas');
         return;
     }
 
-    // Si hay tracking activo, no cargar rutas
     if (isTrackingActive) {
         console.log('Tracking activo, ignorando carga de rutas');
         return;
     }
 
-    // Resetear UI
     container.innerHTML = '<div class="loading-routes"><i class="fas fa-spinner fa-spin"></i> Cargando rutas...</div>';
     selectedRoute = null;
     selectedDirection = null;
@@ -63,7 +108,6 @@ function loadRoutes(terminal) {
         return;
     }
 
-    // Llamada a la API
     var url = '/TRACKING_TERMINAL/api/get_rutas.php?departamento=' + encodeURIComponent(terminal);
     console.log('Fetching:', url);
     
@@ -99,13 +143,11 @@ function loadRoutes(terminal) {
                 sq.addEventListener('click', function() {
                     if (isTrackingActive) return;
                     
-                    // Remover active de todas
                     document.querySelectorAll('.route-square').forEach(function(el) {
                         el.classList.remove('active');
                     });
                     this.classList.add('active');
                     
-                    // Guardar ruta seleccionada
                     selectedRoute = {
                         id: parseInt(this.dataset.id),
                         nombre: this.dataset.nombre,
@@ -114,18 +156,14 @@ function loadRoutes(terminal) {
                     };
                     selectedRouteId = selectedRoute.id;
                     
-                    // Resetear dirección
                     selectedDirection = null;
                     document.querySelectorAll('.direction-btn').forEach(function(btn) {
                         btn.classList.remove('active');
                     });
                     
-                    // Habilitar panel de dirección
                     if (startBtn) startBtn.disabled = true;
                     if (directionPanel) directionPanel.style.display = 'block';
-                    
-                    var routeInfoPanel = document.getElementById('routeInfo');
-                    if (routeInfoPanel) routeInfoPanel.style.display = 'none';
+                    if (routeInfo) routeInfo.style.display = 'none';
                     
                     var infoOrigen = document.getElementById('infoOrigen');
                     var infoDestino = document.getElementById('infoDestino');
@@ -216,20 +254,14 @@ function startNewTracking() {
         return;
     }
     
-    var terminalLabel = {
-        CABAÑAS: 'Cabañas',
-        CUSCATLAN: 'Cuscatlán',
-        oriente: 'Oriente',
-        centro: 'Centro'
-    };
-    
     var termVal = $('#terminalSelect').val();
+    var terminalDisplay = terminalDisplayNames[termVal] || termVal;
     
     var liveTerminalName = document.getElementById('liveTerminalName');
     var liveRouteNumber = document.getElementById('liveRouteNumber');
     var liveDirection = document.getElementById('liveDirection');
     
-    if (liveTerminalName) liveTerminalName.textContent = terminalLabel[termVal] || termVal;
+    if (liveTerminalName) liveTerminalName.textContent = terminalDisplay;
     if (liveRouteNumber) liveRouteNumber.textContent = selectedRoute.nombre;
     if (liveDirection) liveDirection.textContent = selectedDirection === 'IDA' ? 'IDA' : 'REGRESO';
     
@@ -327,7 +359,12 @@ function renderNewTracking() {
             animationInterval = setInterval(function() {
                 if (currentPointIndex < currentCoords.length - 1) {
                     currentPointIndex++;
-                    busMarker.setLatLng(currentCoords[currentPointIndex]);
+                    var currentLat = currentCoords[currentPointIndex][0];
+                    var currentLng = currentCoords[currentPointIndex][1];
+                    busMarker.setLatLng([currentLat, currentLng]);
+                    
+                    // GUARDAR TRACKING EN CADA MOVIMIENTO
+                    saveTrackingToDatabase(currentLat, currentLng, currentPointIndex, currentCoords.length);
                     
                     if (currentPointIndex % 5 === 0 || currentPointIndex === currentCoords.length - 1) {
                         saveTrackingState();
@@ -335,6 +372,11 @@ function renderNewTracking() {
                 } else {
                     clearInterval(animationInterval);
                     animationInterval = null;
+                    
+                    // Guardar último punto
+                    var lastLat = currentCoords[currentCoords.length - 1][0];
+                    var lastLng = currentCoords[currentCoords.length - 1][1];
+                    saveTrackingToDatabase(lastLat, lastLng, currentCoords.length - 1, currentCoords.length);
                     
                     var chatMessages = document.getElementById('chatMessages');
                     if (chatMessages) {
@@ -357,7 +399,7 @@ function renderNewTracking() {
 }
 
 // =====================================================
-// GUARDAR ESTADO
+// GUARDAR ESTADO EN LOCALSTORAGE
 // =====================================================
 function saveTrackingState() {
     if (!isTrackingActive || !selectedRoute) {
@@ -501,6 +543,72 @@ function initDirectionButtons() {
 }
 
 // =====================================================
+// SELECT2 - CONFIGURACIÓN
+// =====================================================
+function initSelect2() {
+    var $terminalSelect = $('#terminalSelect');
+    
+    if (!$terminalSelect.length) {
+        console.error('No se encuentra el elemento #terminalSelect');
+        return;
+    }
+    
+    if ($terminalSelect.data('select2')) {
+        $terminalSelect.select2('destroy');
+    }
+    
+    $terminalSelect.select2({
+        placeholder: "Buscar terminal...",
+        allowClear: false,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        templateResult: function(data) {
+            if (!data.id) return data.text;
+            var displayText = terminalDisplayNames[data.id] || data.text;
+            return $('<span>' + displayText + '</span>');
+        },
+        templateSelection: function(data) {
+            if (!data.id) return data.text;
+            return terminalDisplayNames[data.id] || data.text;
+        }
+    });
+    
+    function updateSelectHighlight() {
+        var currentVal = $terminalSelect.val();
+        var $select2Container = $terminalSelect.next('.select2');
+        var $selection = $select2Container.find('.select2-selection--single');
+        
+        if (currentVal && currentVal !== "") {
+            $selection.addClass('select-has-value');
+            var displayText = terminalDisplayNames[currentVal] || currentVal;
+            var $rendered = $select2Container.find('.select2-selection__rendered');
+            if ($rendered.length && $rendered.html() !== displayText) {
+                $rendered.html(displayText);
+            }
+        } else {
+            $selection.removeClass('select-has-value');
+        }
+    }
+    
+    $terminalSelect.on('select2:select', function(e) {
+        updateSelectHighlight();
+        console.log('Seleccionado:', e.params.data.id);
+    });
+    
+    $terminalSelect.off('change').on('change', function() {
+        var val = $(this).val();
+        updateSelectHighlight();
+        if (val && !isTrackingActive) {
+            loadRoutes(val);
+        } else if (isTrackingActive) {
+            console.log('Tracking activo, no se puede cambiar terminal');
+        }
+    });
+    
+    updateSelectHighlight();
+}
+
+// =====================================================
 // INICIALIZACIÓN PRINCIPAL
 // =====================================================
 function initTrackingSystem() {
@@ -511,7 +619,6 @@ function initTrackingSystem() {
     
     console.log('Inicializando sistema de tracking...');
     
-    // MAPA
     if (!mapInstance) {
         mapInstance = L.map('map-tracking', { zoomControl: false })
                        .setView([13.6929, -89.2182], 8);
@@ -521,37 +628,8 @@ function initTrackingSystem() {
         }).addTo(mapInstance);
     }
     
-    // SELECT2 - Configuración y evento change
-    var terminalSelect = document.getElementById('terminalSelect');
+    initSelect2();
     
-    if (terminalSelect) {
-        // Destruir select2 anterior si existe
-        if ($('#terminalSelect').data('select2')) {
-            $('#terminalSelect').select2('destroy');
-        }
-        
-        // Inicializar select2
-        $('#terminalSelect').select2({
-            placeholder: "Buscar terminal...",
-            allowClear: false,
-            width: '100%'
-        });
-        
-        // Evento change - IMPORTANTE: usar on de jQuery
-        $('#terminalSelect').off('change').on('change', function() {
-            var val = $(this).val();
-            console.log('Terminal seleccionada (change event):', val);
-            if (val && !isTrackingActive) {
-                loadRoutes(val);
-            } else if (isTrackingActive) {
-                console.log('Tracking activo, no se puede cambiar terminal');
-            }
-        });
-    } else {
-        console.error('No se encuentra el elemento terminalSelect');
-    }
-    
-    // COLOR
     var routeColor = document.getElementById('routeColor');
     if (routeColor) {
         routeColor.removeEventListener('input', routeColor._listener);
@@ -563,7 +641,6 @@ function initTrackingSystem() {
         routeColor._listener = routeColor;
     }
     
-    // INICIAR TRACKING
     var startBtn = document.getElementById('startTrackingBtn');
     if (startBtn) {
         startBtn.removeEventListener('click', startBtn._listener);
@@ -571,7 +648,6 @@ function initTrackingSystem() {
         startBtn._listener = startNewTracking;
     }
     
-    // FINALIZAR TRACKING
     var finishBtn = document.getElementById('finishTrackingBtn');
     if (finishBtn) {
         finishBtn.removeEventListener('click', finishBtn._listener);
@@ -581,7 +657,6 @@ function initTrackingSystem() {
         finishBtn._listener = finishBtn;
     }
     
-    // TOGGLE SIDEBAR
     var layout = document.getElementById('adminLayout');
     var toggleBtn = document.getElementById('toggleSidebar');
     var openBtn = document.getElementById('openSidebar');
@@ -655,7 +730,6 @@ function initTrackingSystem() {
         chatInput._listener = chatInput;
     }
     
-    // RELOJ
     function updateClock() {
         var clockEl = document.getElementById('liveClock');
         if (clockEl) {
@@ -665,10 +739,8 @@ function initTrackingSystem() {
     setInterval(updateClock, 1000);
     updateClock();
     
-    // Inicializar botones de dirección
     initDirectionButtons();
     
-    // Intentar restaurar tracking activo
     var restored = loadTrackingState();
     
     if (!restored) {
@@ -681,7 +753,6 @@ function initTrackingSystem() {
         if (routeCount) routeCount.textContent = '0 routes';
     }
     
-    // Guardar estado antes de cerrar
     window.removeEventListener('beforeunload', window._beforeUnloadListener);
     window._beforeUnloadListener = function() {
         if (isTrackingActive) {
@@ -761,18 +832,11 @@ function loadTrackingState() {
         if (statusText) statusText.textContent = 'Live Tracking';
         if (statusPillContainer) statusPillContainer.style.borderColor = '#2ecc71';
         
-        var terminalLabel = {
-            CABAÑAS: 'Cabañas',
-            CUSCATLAN: 'Cuscatlán',
-            oriente: 'Oriente',
-            centro: 'Centro'
-        };
-        
         var liveTerminalName = document.getElementById('liveTerminalName');
         var liveRouteNumber = document.getElementById('liveRouteNumber');
         var liveDirection = document.getElementById('liveDirection');
         
-        if (liveTerminalName) liveTerminalName.textContent = terminalLabel[state.terminal] || state.terminal;
+        if (liveTerminalName) liveTerminalName.textContent = terminalDisplayNames[state.terminal] || state.terminal;
         if (liveRouteNumber) liveRouteNumber.textContent = selectedRoute.nombre;
         if (liveDirection) liveDirection.textContent = selectedDirection === 'IDA' ? 'IDA' : 'REGRESO';
         
@@ -874,7 +938,7 @@ function restoreTracking() {
 }
 
 // =====================================================
-// REANUDAR ANIMACIÓN
+// REANUDAR ANIMACIÓN CON GUARDADO
 // =====================================================
 function resumeAnimation() {
     if (!busMarker || !currentCoords || currentCoords.length === 0) return;
@@ -902,7 +966,12 @@ function resumeAnimation() {
     animationInterval = setInterval(function() {
         if (currentPointIndex < currentCoords.length - 1) {
             currentPointIndex++;
-            busMarker.setLatLng(currentCoords[currentPointIndex]);
+            var currentLat = currentCoords[currentPointIndex][0];
+            var currentLng = currentCoords[currentPointIndex][1];
+            busMarker.setLatLng([currentLat, currentLng]);
+            
+            // GUARDAR TRACKING EN CADA MOVIMIENTO
+            saveTrackingToDatabase(currentLat, currentLng, currentPointIndex, currentCoords.length);
             
             if (currentPointIndex % 5 === 0 || currentPointIndex === currentCoords.length - 1) {
                 saveTrackingState();
@@ -910,6 +979,11 @@ function resumeAnimation() {
         } else {
             clearInterval(animationInterval);
             animationInterval = null;
+            
+            // Guardar último punto
+            var lastLat = currentCoords[currentCoords.length - 1][0];
+            var lastLng = currentCoords[currentCoords.length - 1][1];
+            saveTrackingToDatabase(lastLat, lastLng, currentCoords.length - 1, currentCoords.length);
             
             var chatMessages = document.getElementById('chatMessages');
             if (chatMessages) {

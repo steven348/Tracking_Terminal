@@ -212,7 +212,7 @@
     margin-top: 18px;
 }
 
-/* Select2 Personalizado */
+/* Select2 Personalizado - Estado normal (sin cambios en hover) */
 .select2-container--default .select2-selection--single {
     background-color: var(--bg-panel) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -220,12 +220,19 @@
     height: 48px !important;
     display: flex !important;
     align-items: center !important;
+    transition: all 0.2s ease !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: var(--text-white) !important;
     padding-left: 15px !important;
     font-size: 0.95rem;
+    transition: all 0.2s ease !important;
+}
+
+/* Color del placeholder */
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: var(--text-muted) !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -236,8 +243,55 @@
 .select2-container--default .select2-selection--single .select2-selection__arrow b {
     border-color: var(--text-muted) transparent transparent transparent !important;
     border-width: 6px 4px 0 4px !important;
+    transition: all 0.2s ease !important;
 }
 
+/* Hover del select2 - mantener como estaba originalmente */
+.select2-container--default .select2-selection--single:hover {
+    background-color: var(--bg-panel) !important;
+    border-color: var(--accent-primary) !important;
+}
+
+.select2-container--default .select2-selection--single:hover .select2-selection__rendered {
+    color: var(--accent-primary) !important;
+}
+
+.select2-container--default .select2-selection--single:hover .select2-selection__arrow b {
+    border-color: var(--accent-primary) transparent transparent transparent !important;
+}
+
+/* ===========================================================
+   SELECT2 - ESTILO CUANDO HAY UNA OPCIÓN SELECCIONADA (FONDO CELESTE)
+   =========================================================== */
+.select2-container--default .select2-selection--single.select-has-value {
+    background-color: var(--accent-primary) !important;
+    border-color: var(--accent-primary) !important;
+}
+
+.select2-container--default .select2-selection--single.select-has-value .select2-selection__rendered {
+    color: var(--bg-dark) !important;
+    font-weight: 700 !important;
+}
+
+.select2-container--default .select2-selection--single.select-has-value .select2-selection__arrow b {
+    border-color: var(--bg-dark) transparent transparent transparent !important;
+}
+
+/* Hover cuando está seleccionado - mantener fondo celeste pero con tono más claro */
+.select2-container--default .select2-selection--single.select-has-value:hover {
+    background-color: var(--accent-secondary) !important;
+    border-color: var(--accent-secondary) !important;
+}
+
+.select2-container--default .select2-selection--single.select-has-value:hover .select2-selection__rendered {
+    color: var(--bg-dark) !important;
+}
+
+.select2-container--default .select2-selection--single.select-has-value:hover .select2-selection__arrow b {
+    border-color: var(--bg-dark) transparent transparent transparent !important;
+}
+
+/* Select2 Dropdown */
 .select2-dropdown {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--accent-primary) !important;
@@ -896,7 +950,7 @@ input[type="color"] {
 }
 
 /* ===========================================================
-   LEAFLET (MAP A JUSTES)
+   LEAFLET (MAP AJUSTES)
    =========================================================== */
 .leaflet-marker-icon {
     transition: all 0.5s linear !important;
@@ -1087,7 +1141,7 @@ input[type="color"] {
     transform: translateX(-50%);
     padding: 5px 10px;
     background: var(--bg-dark);
-    color: var(--text-white); 
+    color: var(--text-white);
     font-size: 0.7rem;
     white-space: nowrap;
     border-radius: 6px;
