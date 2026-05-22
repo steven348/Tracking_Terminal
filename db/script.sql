@@ -66,6 +66,19 @@ CREATE TABLE trackings (
     FOREIGN KEY (id_bus) REFERENCES buses(id_bus) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS tracking_logs (
+    id_log INT AUTO_INCREMENT PRIMARY KEY,
+    id_bus INT,
+    ruta_nombre VARCHAR(100),
+    direccion VARCHAR(20),
+    latitud DECIMAL(10, 8) NOT NULL,
+    longitud DECIMAL(11, 8) NOT NULL,
+    punto_actual INT DEFAULT 0,
+    total_puntos INT DEFAULT 0,
+    fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_bus) REFERENCES buses(id_bus) ON DELETE SET NULL
+);
+
 
 
 -- INSERCIÓN DE DATOS INICIALES BÁSICOS
