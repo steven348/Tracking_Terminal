@@ -133,9 +133,9 @@
         <i class="fas fa-map"></i> Rutas
     </a>
 
-    <div class="menu-item">
-        <i class="fas fa-file-alt"></i> Reportes
-    </div>
+   <a href="/TRACKING_TERMINAL/views/admin/reportes_admin.php" class="menu-item <?php echo basename($_SERVER['PHP_SELF']) == 'reportes_admin.php' ? 'active' : ''; ?>">
+        <i class="fas fa-map"></i> reportes
+    </a>
     
     <div style="margin-top: 50px;">
         <a href="/TRACKING_TERMINAL/views/layouts/menu_general.php" class="menu-item">
