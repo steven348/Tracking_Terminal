@@ -1,6 +1,5 @@
 <?php
 session_start();
-// Datos del usuario logueado (ajusta según tu sistema de login)
 $usuario_id = isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 1;
 $usuario_nombre = isset($_SESSION['usuario_nombre']) ? $_SESSION['usuario_nombre'] : 'Administrador';
 $usuario_avatar = substr($usuario_nombre, 0, 1);
@@ -48,6 +47,7 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
             <div class="active-routes-list">
                 <div class="list-header"><span class="text-white">RUTAS ACTIVAS</span><span class="count" id="routeCount">0 routes</span></div>
                 <div id="routesContainer"><p class="no-routes-msg">Selecciona una terminal para ver las rutas</p></div>
+                
                 <div id="directionPanel" style="display:none; margin-top: 15px;">
                     <label class="label-light">SELECCIONA DIRECCIÓN</label>
                     <div class="direction-buttons">
@@ -84,6 +84,10 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
             </div>
             <button class="btn-finish-tracking" id="finishTrackingBtn"><i class="fas fa-stop-circle"></i> Finalizar Tracking</button>
         </div>
+
+        <button class="info-pill-btn" id="openInfoModalBtn" title="Información importante de privacidad">
+            <i class="fas fa-info-circle"></i>
+        </button>
     </aside>
 
     <button class="btn-open-sidebar" id="openSidebar" style="display:none;"><i class="fas fa-bars"></i></button>
@@ -97,6 +101,45 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
     </main>
 </div>
 
+<div class="info-modal-overlay" id="infoModal">
+    <div class="info-modal-card">
+        <div class="info-modal-header">
+            <h3><i class="fas fa-shield-alt"></i> Advertencia de Privacidad</h3>
+            <button class="info-modal-close" id="closeInfoModalBtn">&times;</button>
+        </div>
+        <div class="info-modal-body">
+            <p class="highlight-text">
+                Este sistema utiliza la geolocalización en tiempo real de tu dispositivo para trazar las rutas y realizar el tracking activo en el mapa.
+            </p>
+            
+            <h4><i class="fas fa-exclamation-triangle"></i> Recomendaciones de uso:</h4>
+            <ul>
+                <li><strong>Uso Autorizado:</strong> Asegúrate de contar con los permisos correspondientes de la unidad de transporte antes de iniciar la transmisión.</li>
+                <li><strong>Consumo de Batería:</strong> El uso continuo del GPS en segundo plano incrementa drásticamente el consumo de energía. Mantén el dispositivo conectado a una fuente de carga si es posible.</li>
+                <li><strong>Cierre de Sesión Limpio:</strong> Al terminar el recorrido, presiona obligatoriamente <em>"Finalizar Tracking"</em> para detener la captura de coordenadas y apagar el consumo del GPS.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="info-modal-overlay" id="confirmFinishModal">
+    <div class="info-modal-card format-confirm">
+        <div class="info-modal-header">
+            <h3><i class="fas fa-exclamation-circle text-danger"></i> ¿Finalizar Tracking?</h3>
+            <button class="info-modal-close" id="closeConfirmFinishModalBtn">&times;</button>
+        </div>
+        <div class="info-modal-body">
+            <p class="highlight-text">
+                ¿Estás seguro de que deseas terminar el recorrido? Esta acción dará por finalizado tu tracking actual en tiempo real y dejarás de transmitir tu ubicación a los usuarios.
+            </p>
+            <div class="confirm-actions-wrapper">
+                <button class="btn-modal-back" id="cancelFinishBtn">Volver al mapa</button>
+                <button class="btn-modal-terminate" id="executeFinishBtn">Sí, Finalizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -107,6 +150,68 @@ var usuarioActual = {
     nombre: '<?php echo $usuario_nombre; ?>',
     avatar: '<?php echo $usuario_avatar; ?>'
 };
+</script>
+
+<script>
+$(document).ready(function() {
+    // Abrir ventana emergente
+    $('#openInfoModalBtn').on('click', function(e) {
+        e.preventDefault();
+        $('#infoModal').addClass('show');
+    });
+
+    // Cerrar haciendo clic en la 'X'
+    $('#closeInfoModalBtn').on('click', function() {
+        $('#infoModal').removeClass('show');
+    });
+
+    // Cerrar al hacer clic fuera del cuadro de diálogo
+    $('#infoModal').on('click', function(e) {
+        if ($(e.target).is('.info-modal-overlay')) {
+            $(this).removeClass('show');
+        }
+    });
+
+    /* ===========================================================
+       CONTROL DE MODAL DE CONFIRMACIÓN (INTERCEPCIÓN)
+       =========================================================== */
+    var trackingConfirmado = false;
+
+    // Usamos addEventListener Nativo con 'true' para activar la Fase de Captura.
+    // Esto congela el evento ANTES de que jQuery y 'realizar_tracking.js' se enteren.
+    document.getElementById('finishTrackingBtn').addEventListener('click', function(event) {
+        if (!trackingConfirmado) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation(); // Frena en seco scripts externos
+            
+            $('#confirmFinishModal').addClass('show');
+        } else {
+            // Si ya se confirmó, permitimos el flujo original y reiniciamos bandera
+            trackingConfirmado = false;
+        }
+    }, true);
+
+    // Botón Cancelar dentro del modal
+    $('#cancelFinishBtn, #closeConfirmFinishModalBtn').on('click', function() {
+        $('#confirmFinishModal').removeClass('show');
+    });
+
+    // Cerrar haciendo clic fuera de la tarjeta
+    $('#confirmFinishModal').on('click', function(e) {
+        if ($(e.target).is('.info-modal-overlay')) {
+            $(this).removeClass('show');
+        }
+    });
+
+    // Botón Confirmar ("Sí, Finalizar") dentro del modal
+    $('#executeFinishBtn').on('click', function() {
+        trackingConfirmado = true;
+        $('#confirmFinishModal').removeClass('show');
+        // Disparamos el click real de manera programática, ahora sí pasará el filtro
+        document.getElementById('finishTrackingBtn').click();
+    });
+});
 </script>
 <script src="/TRACKING_TERMINAL/assets/js/realizar_tracking.js"></script>
 </body>
