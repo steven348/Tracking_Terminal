@@ -15,6 +15,11 @@ var isTrackingActive  = false;
 var lastSavedIndex    = 0;
 var animationSpeed    = 800;
 var isInitialized     = false;
+var routeLayers       = [];
+var routeEndpointMarkers = [];
+var routeLabelMarkers = [];
+var routeLayerMap     = {};
+var routeColors       = {};
 
 // CHAT - Variables
 var chatMessagesArray = [];
@@ -26,6 +31,156 @@ var terminalDisplayNames = {
     'oriente': 'Oriente',
     'centro': 'Centro'
 };
+
+function getRouteColor(routeId) {
+    if (routeColors[routeId]) return routeColors[routeId];
+    var palette = ['#1abc9c', '#e67e22', '#9b59b6', '#3498db', '#e74c3c', '#f1c40f', '#2ecc71', '#34495e'];
+    var color = palette[routeId % palette.length];
+    routeColors[routeId] = color;
+    return color;
+}
+
+function clearMap() {
+    if (!mapInstance) return;
+    if (rutaLine && mapInstance.hasLayer(rutaLine)) mapInstance.removeLayer(rutaLine);
+    if (busMarker && mapInstance.hasLayer(busMarker)) mapInstance.removeLayer(busMarker);
+    if (destMarker && mapInstance.hasLayer(destMarker)) mapInstance.removeLayer(destMarker);
+    routeLayers.forEach(function(layer) {
+        if (mapInstance.hasLayer(layer)) mapInstance.removeLayer(layer);
+    });
+    routeEndpointMarkers.forEach(function(marker) {
+        if (mapInstance.hasLayer(marker)) mapInstance.removeLayer(marker);
+    });
+    routeLabelMarkers.forEach(function(marker) {
+        if (mapInstance.hasLayer(marker)) mapInstance.removeLayer(marker);
+    });
+    routeLayers = [];
+    routeEndpointMarkers = [];
+    routeLabelMarkers = [];
+    routeLayerMap = {};
+    if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+    }
+    rutaLine = busMarker = destMarker = null;
+}
+
+function addRouteToMap(route, coords, routeIndex) {
+    if (!coords || coords.length === 0 || !mapInstance) return;
+    var color = getRouteColor(route.id_ruta || route.id);
+    var line = L.polyline(coords, { color: color, weight: 4, opacity: 0.75 }).addTo(mapInstance);
+    routeLayers.push(line);
+    routeLayerMap[route.id_ruta || route.id] = line;
+
+    var startIcon = L.divIcon({
+        className: 'route-endpoint-marker route-start-marker',
+        html: '<div class="route-endpoint-dot" style="background:' + color + '"></div>'
+    });
+    var endIcon = L.divIcon({
+        className: 'route-endpoint-marker route-end-marker',
+        html: '<div class="route-endpoint-dot" style="background:' + color + '"></div>'
+    });
+
+    var startMarker = L.marker(coords[0], { icon: startIcon }).addTo(mapInstance);
+    var endMarker = L.marker(coords[coords.length - 1], { icon: endIcon }).addTo(mapInstance);
+    routeEndpointMarkers.push(startMarker, endMarker);
+
+    var midpointIndex = Math.floor(coords.length / 2);
+    var labelLatLng = coords[midpointIndex];
+    var offset = (routeIndex % 2 === 0) ? -20 : 20;
+    var labelIcon = L.divIcon({
+        className: 'route-number-label',
+        html: '<div class="route-number-badge" style="background:' + color + '">' + (route.nombre_ruta || route.nombre) + '</div>',
+        iconAnchor: [0, offset]
+    });
+    var labelMarker = L.marker(labelLatLng, { icon: labelIcon, interactive: false }).addTo(mapInstance);
+    routeLabelMarkers.push(labelMarker);
+}
+
+function drawTerminalRoutes(routes) {
+    if (!Array.isArray(routes) || routes.length === 0) return;
+    clearMap();
+    var promises = routes.map(function(route, index) {
+        return loadRouteCoordinates(route.id_ruta || route.id)
+            .then(function(coords) {
+                addRouteToMap(route, coords, index);
+                return route;
+            })
+            .catch(function(error) {
+                console.error('Error cargando coordenadas de ruta ' + route.id_ruta, error);
+                return null;
+            });
+    });
+    Promise.all(promises).then(function(loadedRoutes) {
+        var validLayers = routeLayers.filter(function(layer) { return layer instanceof L.Polyline; });
+        if (validLayers.length > 0) {
+            var group = L.featureGroup(validLayers);
+            mapInstance.fitBounds(group.getBounds(), { padding: [40, 40] });
+        }
+    });
+}
+
+function zoomToRoute(routeId) {
+    var layer = routeLayerMap[routeId];
+    if (layer && mapInstance) {
+        mapInstance.fitBounds(layer.getBounds(), { padding: [40, 40] });
+    }
+}
+
+function showOnlySelectedRoute(routeId) {
+    if (!mapInstance) return;
+    routeLayers.forEach(function(layer) {
+        if (mapInstance.hasLayer(layer)) {
+            mapInstance.removeLayer(layer);
+        }
+    });
+    routeLayers = [];
+    routeEndpointMarkers.forEach(function(marker) {
+        if (mapInstance.hasLayer(marker)) {
+            mapInstance.removeLayer(marker);
+        }
+    });
+    routeLabelMarkers.forEach(function(marker) {
+        if (mapInstance.hasLayer(marker)) {
+            mapInstance.removeLayer(marker);
+        }
+    });
+    routeEndpointMarkers = [];
+    routeLabelMarkers = [];
+    if (routeLayerMap[routeId]) {
+        loadRouteCoordinates(routeId)
+            .then(function(coords) {
+                if (!coords || coords.length === 0) return;
+                var color = getRouteColor(routeId);
+                var line = L.polyline(coords, { color: color, weight: 4, opacity: 0.75 }).addTo(mapInstance);
+                routeLayers.push(line);
+                routeLayerMap[routeId] = line;
+                var startIcon = L.divIcon({
+                    className: 'route-endpoint-marker route-start-marker',
+                    html: '<div class="route-endpoint-dot" style="background:' + color + '"></div>'
+                });
+                var endIcon = L.divIcon({
+                    className: 'route-endpoint-marker route-end-marker',
+                    html: '<div class="route-endpoint-dot" style="background:' + color + '"></div>'
+                });
+                var startMarker = L.marker(coords[0], { icon: startIcon }).addTo(mapInstance);
+                var endMarker = L.marker(coords[coords.length - 1], { icon: endIcon }).addTo(mapInstance);
+                routeEndpointMarkers.push(startMarker, endMarker);
+                var labelIcon = L.divIcon({
+                    className: 'route-number-label',
+                    html: '<div class="route-number-badge" style="background:' + color + '">' + (selectedRoute.nombre || '') + '</div>',
+                    iconAnchor: [0, -20]
+                });
+                var midpointIndex = Math.floor(coords.length / 2);
+                var labelMarker = L.marker(coords[midpointIndex], { icon: labelIcon, interactive: false }).addTo(mapInstance);
+                routeLabelMarkers.push(labelMarker);
+                mapInstance.fitBounds(line.getBounds(), { padding: [40, 40] });
+            })
+            .catch(function(error) {
+                console.error('Error cargando coordenadas:', error);
+            });
+    }
+}
 
 // =====================================================
 // FUNCIONES DEL CHAT (sin base de datos)
@@ -285,14 +440,16 @@ function loadRoutes(terminal) {
                     });
                     if (startBtn) startBtn.disabled = true;
                     if (directionPanel) directionPanel.style.display = 'block';
-                    if (routeInfo) routeInfo.style.display = 'none';
+                    if (routeInfo) routeInfo.style.display = 'block';
                     var infoOrigen = document.getElementById('infoOrigen');
                     var infoDestino = document.getElementById('infoDestino');
-                    if (infoOrigen) infoOrigen.textContent = '—';
-                    if (infoDestino) infoDestino.textContent = '—';
+                    if (infoOrigen) infoOrigen.textContent = selectedRoute.origen || '—';
+                    if (infoDestino) infoDestino.textContent = selectedRoute.destino || '—';
+                    showOnlySelectedRoute(selectedRoute.id);
                 });
                 container.appendChild(sq);
             });
+            drawTerminalRoutes(routes);
         })
         .catch(function(error) {
             console.error('Error al cargar rutas:', error);
@@ -322,18 +479,6 @@ function loadRouteCoordinates(routeId, direction) {
             if (direction === 'REGRESO') return coords.reverse();
             return coords;
         });
-}
-
-function clearMap() {
-    if (!mapInstance) return;
-    if (rutaLine && mapInstance.hasLayer(rutaLine)) mapInstance.removeLayer(rutaLine);
-    if (busMarker && mapInstance.hasLayer(busMarker)) mapInstance.removeLayer(busMarker);
-    if (destMarker && mapInstance.hasLayer(destMarker)) mapInstance.removeLayer(destMarker);
-    if (animationInterval) {
-        clearInterval(animationInterval);
-        animationInterval = null;
-    }
-    rutaLine = busMarker = destMarker = null;
 }
 
 function renderNewTracking() {
@@ -622,8 +767,37 @@ function initTrackingSystem() {
         if (selectedRoute && selectedDirection && rutaLine && !isTrackingActive) {
             rutaLine.setStyle({ color: this.value });
         }
+        if (selectedRoute && !selectedDirection && selectedRouteId && !isTrackingActive) {
+            var selectedLayer = routeLayerMap[selectedRouteId];
+            if (selectedLayer) {
+                selectedLayer.setStyle({ color: this.value });
+            }
+        }
     });
+    var gpsInfoBtn = document.getElementById('gpsInfoBtn');
+    if (gpsInfoBtn) {
+        gpsInfoBtn.addEventListener('click', function() {
+            showToast('Ubicación GPS', 'Esta página usa ubicación GPS para mostrar las rutas y los puntos de origen y destino en el mapa. Asegúrate de dar permisos de ubicación si tu navegador lo solicita.');
+        });
+    }
     document.getElementById('startTrackingBtn').addEventListener('click', startNewTracking);
+    function showToast(title, message) {
+        var existing = document.getElementById('notificationToast');
+        if (existing) existing.remove();
+        var toast = document.createElement('div');
+        toast.id = 'notificationToast';
+        toast.className = 'notification-toast';
+        toast.innerHTML = '<button class="toast-close" type="button">&times;</button>' +
+            '<h4>' + title + '</h4>' +
+            '<p>' + message + '</p>';
+        document.body.appendChild(toast);
+        toast.querySelector('.toast-close').addEventListener('click', function() {
+            toast.remove();
+        });
+        setTimeout(function() {
+            if (toast.parentNode) toast.remove();
+        }, 7000);
+    }
     document.getElementById('finishTrackingBtn').addEventListener('click', function() { window.finishTracking(); });
     var layout = document.getElementById('adminLayout');
     var toggleBtn = document.getElementById('toggleSidebar');

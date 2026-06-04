@@ -60,6 +60,9 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
                     </div>
                 </div>
                 <button class="btn-start-tracking" id="startTrackingBtn" disabled><i class="fas fa-play"></i> Iniciar Tracking</button>
+                <button type="button" id="gpsInfoBtn" class="btn-info-circle-tiny" title="Esta página usa ubicación GPS">
+                    <i class="fas fa-exclamation"></i>
+                </button>
             </div>
         </div>
 
