@@ -68,13 +68,13 @@ $usuario_avatar = strtoupper(substr($usuario_nombre, 0, 1));
                 </div>
 
                 <!-- Panel dirección IDA/REGRESO -->
-                <div id="directionPanel" style="display:none; margin-top:10px;">
+                <div id="directionPanel" style="display:block; margin-top:10px;">
                     <label class="label-light">Dirección</label>
                     <div class="direction-buttons">
-                        <button class="direction-btn" data-direction="IDA">
+                        <button class="direction-btn" data-direction="IDA" disabled>
                             <i class="fas fa-arrow-right"></i> IDA
                         </button>
-                        <button class="direction-btn" data-direction="REGRESO">
+                        <button class="direction-btn" data-direction="REGRESO" disabled>
                             <i class="fas fa-arrow-left"></i> REGRESO
                         </button>
                     </div>
@@ -316,36 +316,32 @@ $(document).ready(function () {
     toggleBtn.addEventListener('click', function () { layout.classList.add('sidebar-hidden');    openBtn.style.display = 'flex'; });
     openBtn.addEventListener('click',   function () { layout.classList.remove('sidebar-hidden'); openBtn.style.display = 'none'; });
 
-    /* ── MODAL INFO PRIVACIDAD: hover sin bucle ── */
-$('#openInfoModalBtn').on('mouseenter', function() {
-    clearTimeout(window._infoTimer);
-    $('#infoModal').addClass('show');
-});
+    /* ── MODAL INFO PRIVACIDAD ── */
+    $('#openInfoModalBtn').on('mouseenter', function() {
+        clearTimeout(window._infoTimer);
+        $('#infoModal').addClass('show');
+    });
 
-$('#openInfoModalBtn').on('mouseleave', function() {
-    window._infoTimer = setTimeout(function() {
-        $('#infoModal').removeClass('show');
-    }, 250);
-});
+    $('#openInfoModalBtn').on('mouseleave', function() {
+        window._infoTimer = setTimeout(function() {
+            $('#infoModal').removeClass('show');
+        }, 250);
+    });
 
-$('.info-modal-card').on('mouseenter', function() {
-    clearTimeout(window._infoTimer);
-});
+    $('.info-modal-card').on('mouseenter', function() {
+        clearTimeout(window._infoTimer);
+    });
 
-$('.info-modal-card').on('mouseleave', function() {
-    window._infoTimer = setTimeout(function() {
-        $('#infoModal').removeClass('show');
-    }, 250);
-});
-
-$('#closeInfoModalBtn').on('click', function() {
-    $('#infoModal').removeClass('show');
-});
+    $('.info-modal-card').on('mouseleave', function() {
+        window._infoTimer = setTimeout(function() {
+            $('#infoModal').removeClass('show');
+        }, 250);
+    });
 
     $('#closeInfoModalBtn').on('click', function() { $('#infoModal').removeClass('show'); });
     $('#infoModal').on('click', function(e) { if ($(e.target).is('.info-modal-overlay')) $(this).removeClass('show'); });
 
-    /* ── MODAL CONFIRMAR FINALIZAR (lógica simple y limpia) ── */
+    /* ── MODAL CONFIRMAR FINALIZAR ── */
     document.getElementById('finishTrackingBtn').addEventListener('click', function() {
         $('#confirmFinishModal').addClass('show');
     });
@@ -369,8 +365,8 @@ $('#closeInfoModalBtn').on('click', function() {
     var ultimoEmisor = null;
 
     function getTime() {
-        var now = new Date(), h = now.getHours(), m = String(now.getMinutes()).padStart(2,'0'), ampm = h>=12?'PM':'AM';
-        return (h%12||12) + ':' + m + ' ' + ampm;
+        var now = new Date(), h = now.getHours(), m = String(now.getMinutes()).padStart(2,'0');
+        return h + ':' + m;
     }
 
     function addSystemMessage(text) {
@@ -414,26 +410,23 @@ $('#closeInfoModalBtn').on('click', function() {
     document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(); });
 
-    /* ── AVISAR AL PADRE (SPA iframe) ── */
     function avisar(tipo) {
         try { window.parent.postMessage({ tipo: tipo }, '*'); } catch(e) {}
     }
 
-    /* ── RESETEAR UI ── */
     function resetearUI() {
         document.getElementById('trackingLivePanel').style.display   = 'none';
         document.getElementById('trackingConfigPanel').style.display = 'block';
         document.getElementById('statusDot').classList.remove('active');
         document.getElementById('statusText').textContent            = 'Inactive Tracking';
         document.getElementById('statusPillContainer').style.borderColor = '';
-        detenerAnimacion();
-        clearMap();
+        if (typeof detenerAnimacion === 'function') detenerAnimacion();
+        if (typeof clearMap === 'function') clearMap();
         avisar('TRACKING_FINALIZADO');
     }
 
-    /* ── INICIAR TRACKING ── */
     document.getElementById('startTrackingBtn').addEventListener('click', function () {
-        if (!selectedRoute) return;
+        if (typeof selectedRoute === 'undefined' || !selectedRoute) return;
         var labels  = { 'CABAÑAS': 'Cabañas', 'CUSCATLAN': 'Cuscatlán', oriente: 'Oriente', centro: 'Centro' };
         var termVal = $('#terminalSelect').val();
 
@@ -445,25 +438,23 @@ $('#closeInfoModalBtn').on('click', function() {
         document.getElementById('statusText').textContent            = 'Live Tracking';
         document.getElementById('statusPillContainer').style.borderColor = 'var(--success)';
 
+        document.getElementById('liveDirection').textContent = selectedDirection || '—';
         ultimoEmisor           = null;
         chatMessages.innerHTML = '';
-        addSystemMessage('✅ Tracking iniciado · Ruta ' + selectedRoute.id);
+        addSystemMessage('✅ Tracking iniciado · Ruta ' + selectedRoute.id + ' — ' + selectedDirection);
         avisar('TRACKING_INICIADO');
-        renderTracking();
+        if (typeof renderTracking === 'function') renderTracking();
     });
 
-    /* ── MODAL DESTINO AUTOMÁTICO ── */
     document.getElementById('btnCerrarModalDestino').addEventListener('click', function () {
         document.getElementById('modalDestino').style.display = 'none';
         resetearUI();
     });
 
-    /* ── BOTÓN RUTAS CERCANAS ── */
     document.getElementById('btnRutasCercanas').addEventListener('click', function () {
-        toggleRutasCercanas();
+        if (typeof toggleRutasCercanas === 'function') toggleRutasCercanas();
     });
 
-    /* ── BOTÓN VOLVER ── */
     document.getElementById('btnVolver').addEventListener('click', function(e) {
         e.preventDefault();
         try {
@@ -477,16 +468,17 @@ $('#closeInfoModalBtn').on('click', function() {
         }
     });
 
-    /* ── MODAL UBICACIÓN al cargar la vista ── */
     setTimeout(function() {
         document.getElementById('modalUbicacion').style.display = 'flex';
     }, 600);
 
     document.getElementById('btnPermitirUbicacion').addEventListener('click', function() {
         document.getElementById('modalUbicacion').style.display = 'none';
-        solicitarUbicacion(function(ok) {
-            if (ok) mostrarPanelRutasCercanas();
-        });
+        if (typeof solicitarUbicacion === 'function') {
+            solicitarUbicacion(function(ok) {
+                if (ok && typeof mostrarPanelRutasCercanas === 'function') mostrarPanelRutasCercanas();
+            });
+        }
     });
 
     document.getElementById('btnOmitirUbicacion').addEventListener('click', function() {

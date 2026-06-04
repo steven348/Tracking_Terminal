@@ -5,6 +5,7 @@ var rutaLine             = null;
 var busMarker            = null;
 var destMarker           = null;
 var selectedRoute        = null;
+var selectedDirection    = 'IDA';
 var mapInstance          = null;
 var userMarker           = null;
 var userCircle           = null;
@@ -76,6 +77,7 @@ function loadRoutes(terminal) {
     container.innerHTML = '';
     selectedRoute       = null;
     startBtn.disabled   = true;
+    setDirectionButtonsEnabled(false);
     detenerAnimacion();
 
     if (!terminal) {
@@ -102,9 +104,71 @@ function loadRoutes(terminal) {
             sq.classList.add('active');
             selectedRoute     = route;
             startBtn.disabled = false;
+            setDirectionButtonsEnabled(true);
+            setDirection(selectedDirection);
         });
         container.appendChild(sq);
     });
+}
+
+function parseRouteEndpoints(route) {
+    if (!route || !route.nombre) return { origen: '—', destino: '—' };
+    var nombre = route.nombre.trim();
+    var parts  = nombre.split(/\s*-\s*/);
+    if (parts.length >= 2) {
+        return {
+            origen: parts[0].trim() || '—',
+            destino: parts.slice(1).join(' - ').trim() || '—'
+        };
+    }
+    var altParts = nombre.split(/\s+(?:a|hacia|hasta)\s+/i);
+    if (altParts.length >= 2) {
+        return {
+            origen: altParts[0].trim() || '—',
+            destino: altParts.slice(1).join(' ').trim() || '—'
+        };
+    }
+    return { origen: nombre, destino: '—' };
+}
+
+function setDirectionButtonsEnabled(enabled) {
+    document.querySelectorAll('.direction-btn').forEach(function(btn) {
+        btn.disabled = !enabled;
+        if (!enabled) {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function setDirection(direction) {
+    selectedDirection = direction;
+    document.querySelectorAll('.direction-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.direction === direction);
+    });
+
+    var routeInfo = document.getElementById('routeInfo');
+    var origenEl  = document.getElementById('infoOrigen');
+    var destinoEl = document.getElementById('infoDestino');
+    var liveDir   = document.getElementById('liveDirection');
+
+    if (!routeInfo || !origenEl || !destinoEl || !liveDir) return;
+    if (!selectedRoute || !selectedRoute.nombre) {
+        routeInfo.style.display = 'none';
+        liveDir.textContent = '—';
+        return;
+    }
+
+    var endpoints = parseRouteEndpoints(selectedRoute);
+    if (direction === 'REGRESO') {
+        var temp       = endpoints.origen;
+        endpoints.origen  = endpoints.destino;
+        endpoints.destino = temp;
+    }
+
+    routeInfo.style.display = 'block';
+    origenEl.textContent  = endpoints.origen;
+    destinoEl.textContent = endpoints.destino;
+    liveDir.textContent   = direction;
 }
 
 // =====================================================
@@ -154,7 +218,8 @@ function renderTracking() {
     clearMap();
 
     var color  = document.getElementById('routeColor').value;
-    var coords = selectedRoute.coords;
+    var coords = selectedRoute.coords.slice();
+    if (selectedDirection === 'REGRESO') coords.reverse();
     var total  = coords.length;
 
     var busIcon = L.divIcon({
@@ -310,6 +375,8 @@ function mostrarPanelRutasCercanas() {
 
             // Setear ruta directamente sin trigger change
             selectedRoute = item.ruta;
+            setDirectionButtonsEnabled(true);
+            setDirection(selectedDirection);
 
             // Actualizar el select visualmente sin disparar loadRoutes
             if (typeof $ !== 'undefined') {
@@ -326,7 +393,7 @@ function mostrarPanelRutasCercanas() {
             rutasCercanasVisible = false;
             actualizarBtnRutas(false);
 
-            // Habilitar botón iniciar y resaltar
+             // Habilitar botón iniciar y resaltar
             var startBtn = document.getElementById('startTrackingBtn');
             if (startBtn) {
                 startBtn.disabled = false;
@@ -393,6 +460,17 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('routeColor').addEventListener('input', function() {
         if (selectedRoute && rutaLine) renderTracking();
     });
+
+    document.querySelectorAll('.direction-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var direction = btn.dataset.direction;
+            if (!direction) return;
+            setDirection(direction);
+            if (selectedRoute && rutaLine) renderTracking();
+        });
+    });
+
+    setDirectionButtonsEnabled(false);
 
     function updateClock() {
         document.getElementById('liveClock').innerText =
