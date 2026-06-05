@@ -1472,3 +1472,164 @@ input[type="color"] {
 .btn-modal-terminate:active {
     transform: scale(0.98);
 }
+
+/* Estilos para el bus en movimiento */
+.custom-bus-marker {
+    background: none !important;
+    border: none !important;
+}
+
+.bus-marker-wrapper {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #112331, #0a1a2a);
+    border: 2px solid #00f3ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00f3ff;
+    font-size: 18px;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.bus-marker-wrapper i {
+    animation: busShake 0.5s ease-in-out infinite;
+}
+
+@keyframes busShake {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(2px); }
+}
+
+@keyframes busMove {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.bus-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 243, 255, 0.3);
+    border-radius: 50%;
+    animation: busPulse 1.5s infinite;
+    z-index: -1;
+}
+
+@keyframes busPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+.bus-label-tooltip {
+    position: absolute;
+    top: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid #00f3ff;
+    color: #00f3ff;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 20px;
+    white-space: nowrap;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    z-index: 10;
+}
+
+/* Estilos para el usuario */
+.custom-user-marker {
+    background: none !important;
+    border: none !important;
+}
+
+.user-location-marker {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+}
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.8);
+    z-index: 2;
+    position: relative;
+    text-transform: uppercase;
+}
+
+.user-label {
+    position: absolute;
+    bottom: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: #2ecc71;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 20px;
+    white-space: nowrap;
+    font-family: monospace;
+    border: 1px solid #2ecc71;
+    z-index: 1;
+}
+
+.pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    background: #2ecc71;
+    border-radius: 50%;
+    opacity: 0.4;
+    transform: translate(-50%, -50%);
+    animation: userPulse 2s infinite;
+    z-index: 0;
+}
+
+@keyframes userPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.2);
+        opacity: 0;
+    }
+}
+
+/* Tarjeta de distancia */
+#distanciaAlBus {
+    background: linear-gradient(135deg, #0a1a2a, #06121e);
+    border-left: 3px solid #2ecc71;
+}
+
+#distanciaAlBus .live-card-value {
+    font-size: 1.3rem !important;
+    font-weight: 800;
+    color: #2ecc71;
+}

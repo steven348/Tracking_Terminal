@@ -20,6 +20,10 @@ var routeEndpointMarkers = [];
 var routeLabelMarkers = [];
 var routeLayerMap     = {};
 var routeColors       = {};
+var watchPositionId   = null;
+var lastSentPosition  = null;
+var chatPollingInterval = null;
+var lastChatId        = 0;
 
 // CHAT - Variables
 var chatMessagesArray = [];
@@ -120,13 +124,6 @@ function drawTerminalRoutes(routes) {
     });
 }
 
-function zoomToRoute(routeId) {
-    var layer = routeLayerMap[routeId];
-    if (layer && mapInstance) {
-        mapInstance.fitBounds(layer.getBounds(), { padding: [40, 40] });
-    }
-}
-
 function showOnlySelectedRoute(routeId) {
     if (!mapInstance) return;
     routeLayers.forEach(function(layer) {
@@ -183,7 +180,193 @@ function showOnlySelectedRoute(routeId) {
 }
 
 // =====================================================
-// FUNCIONES DEL CHAT (sin base de datos)
+// GEOLOCALIZACIÓN REAL
+// =====================================================
+
+function iniciarGeolocalizacionReal() {
+    if (!navigator.geolocation) {
+        console.warn('Geolocalización no soportada');
+        return;
+    }
+    
+    var options = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 2000
+    };
+    
+    watchPositionId = navigator.geolocation.watchPosition(
+        function(position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            
+            if (lastSentPosition) {
+                var distancia = calcularDistancia(
+                    lastSentPosition.lat, lastSentPosition.lng,
+                    lat, lng
+                );
+                if (distancia < 5) return;
+            }
+            
+            lastSentPosition = { lat: lat, lng: lng };
+            
+            if (busMarker) {
+                busMarker.setLatLng([lat, lng]);
+            }
+            
+            guardarPosicionReal(lat, lng);
+            
+            if (isTrackingActive && selectedRoute) {
+                saveTrackingToDatabase(lat, lng, currentPointIndex, currentCoords.length);
+            }
+        },
+        function(error) {
+            console.error('Error de geolocalización:', error);
+        },
+        options
+    );
+}
+
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    var R = 6371000;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+function guardarPosicionReal(lat, lng) {
+    if (!selectedRoute) return;
+    
+    console.log('Guardando posición real - Ruta:', selectedRoute.id, 'Lat:', lat, 'Lng:', lng, 'Punto:', currentPointIndex);
+    
+    var data = {
+        id_bus: usuarioActual.id || 1,
+        id_ruta: selectedRoute.id,
+        latitud: lat,
+        longitud: lng,
+        ruta_nombre: selectedRoute.nombre,
+        direccion: selectedDirection,
+        punto_actual: currentPointIndex,
+        total_puntos: currentCoords.length || 1
+    };
+    
+    fetch('/TRACKING_TERMINAL/api/get_active_tracking.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        console.log('Posición guardada correctamente:', result);
+    })
+    .catch(function(error) {
+        console.error('Error guardando posición real:', error);
+    });
+}
+
+// =====================================================
+// CHAT CENTRALIZADO
+// =====================================================
+
+function iniciarChatCentralizado() {
+    if (!selectedRoute || !selectedDirection) return;
+    
+    if (chatPollingInterval) clearInterval(chatPollingInterval);
+    
+    cargarMensajesCentralizados();
+    
+    chatPollingInterval = setInterval(function() {
+        cargarMensajesCentralizados();
+    }, 2000);
+}
+
+function cargarMensajesCentralizados() {
+    if (!selectedRoute || !selectedDirection) return;
+    
+    var url = '/TRACKING_TERMINAL/api/chat_sync.php?id_ruta=' + selectedRoute.id + 
+              '&direccion=' + encodeURIComponent(selectedDirection) + 
+              '&last_id=' + lastChatId;
+    
+    fetch(url)
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success && data.mensajes && data.mensajes.length > 0) {
+                data.mensajes.forEach(function(msg) {
+                    agregarMensajeChatCentralizado(msg.nombre, msg.mensaje, msg.timestamp, msg.tipo);
+                    if (msg.id > lastChatId) lastChatId = msg.id;
+                });
+            }
+        })
+        .catch(function(error) {
+            console.error('Error cargando mensajes:', error);
+        });
+}
+
+function enviarMensajeCentralizado() {
+    var chatInput = document.getElementById('chatInput');
+    if (!chatInput) return;
+    
+    var texto = chatInput.value.trim();
+    if (!texto) return;
+    
+    if (!selectedRoute || !selectedDirection) {
+        console.warn('No hay ruta seleccionada para enviar mensaje');
+        return;
+    }
+    
+    var data = {
+        id_ruta: selectedRoute.id,
+        direccion: selectedDirection,
+        nombre: usuarioActual.nombre,
+        mensaje: texto,
+        tipo: 'conductor'
+    };
+    
+    fetch('/TRACKING_TERMINAL/api/chat_sync.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        if (result.success) {
+            chatInput.value = '';
+            cargarMensajesCentralizados();
+        }
+    })
+    .catch(function(error) {
+        console.error('Error enviando mensaje:', error);
+    });
+}
+
+function agregarMensajeChatCentralizado(nombre, mensaje, timestamp, tipo) {
+    var chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    var esMismoUsuario = (nombre === usuarioActual.nombre);
+    var esConductor = (tipo === 'conductor');
+    var avatar = nombre.charAt(0).toUpperCase();
+    var hora = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : getCurrentTime();
+    
+    var div = document.createElement('div');
+    div.className = 'chat-message' + (esMismoUsuario ? ' self' : '') + (esConductor ? ' conductor' : '');
+    div.innerHTML =
+        '<div class="chat-avatar">' + avatar + '</div>' +
+        '<div class="chat-content">' +
+            '<div class="chat-user">' + escapeHtml(nombre) + (esConductor ? ' 🚌' : '') + ' · ' + hora + '</div>' +
+            '<div class="chat-bubble">' + escapeHtml(mensaje) + '</div>' +
+        '</div>';
+    
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// =====================================================
+// FUNCIONES DEL CHAT LOCAL (sessionStorage)
 // =====================================================
 
 function getCurrentTime() {
@@ -224,7 +407,7 @@ function cargarMensajesDeSession() {
             if (chatMessages) {
                 chatMessages.innerHTML = '';
                 chatMessagesArray.forEach(function(msg) {
-                    agregarMensajeAlChat(msg.nombre, msg.mensaje, msg.hora);
+                    agregarMensajeAlChatLocal(msg.nombre, msg.mensaje, msg.hora);
                 });
             }
         } catch(e) {
@@ -248,7 +431,7 @@ function limpiarMensajesDeSession() {
     chatMessagesArray = [];
 }
 
-function agregarMensajeAlChat(nombre, mensaje, hora) {
+function agregarMensajeAlChatLocal(nombre, mensaje, hora) {
     var chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
@@ -260,7 +443,7 @@ function agregarMensajeAlChat(nombre, mensaje, hora) {
     div.innerHTML =
         '<div class="chat-avatar">' + avatar + '</div>' +
         '<div class="chat-content">' +
-            '<div class="chat-user">' + nombre + ' · ' + hora + '</div>' +
+            '<div class="chat-user">' + escapeHtml(nombre) + ' · ' + hora + '</div>' +
             '<div class="chat-bubble">' + escapeHtml(mensaje) + '</div>' +
         '</div>';
     
@@ -268,7 +451,7 @@ function agregarMensajeAlChat(nombre, mensaje, hora) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-function enviarMensaje() {
+function enviarMensajeLocal() {
     var chatInput = document.getElementById('chatInput');
     if (!chatInput) return;
     
@@ -285,14 +468,14 @@ function enviarMensaje() {
         timestamp: new Date().getTime()
     });
     
-    agregarMensajeAlChat(nombre, texto, hora);
+    agregarMensajeAlChatLocal(nombre, texto, hora);
     guardarMensajesEnSession();
     
     chatInput.value = '';
     chatInput.focus();
 }
 
-function iniciarChat() {
+function iniciarChatLocal() {
     chatMessagesArray = [];
     cargarMensajesDeSession();
     
@@ -314,7 +497,7 @@ function iniciarChat() {
     }
 }
 
-function finalizarChat() {
+function finalizarChatLocal() {
     limpiarMensajesDeSession();
     chatMessagesArray = [];
     
@@ -331,6 +514,7 @@ function finalizarChat() {
 // =====================================================
 // GUARDAR TRACKING EN BD
 // =====================================================
+
 function saveTrackingToDatabase(lat, lng, currentPoint, totalPoints) {
     if (!isTrackingActive) return;
     if (!selectedRoute) return;
@@ -365,8 +549,14 @@ function saveTrackingToDatabase(lat, lng, currentPoint, totalPoints) {
 // =====================================================
 // FUNCIONES DE RUTAS Y MAPA
 // =====================================================
+
 function loadRoutes(terminal) {
     console.log('loadRoutes llamado con terminal:', terminal);
+    
+    if (isTrackingActive) {
+        console.log('Tracking activo, ignorando carga de rutas');
+        return;
+    }
     
     var container = document.getElementById('routesContainer');
     var countEl = document.getElementById('routeCount');
@@ -374,10 +564,6 @@ function loadRoutes(terminal) {
     var directionPanel = document.getElementById('directionPanel');
 
     if (!container) return;
-    if (isTrackingActive) {
-        console.log('Tracking activo, ignorando carga de rutas');
-        return;
-    }
 
     container.innerHTML = '<div class="loading-routes"><i class="fas fa-spinner fa-spin"></i> Cargando rutas...</div>';
     selectedRoute = null;
@@ -406,6 +592,11 @@ function loadRoutes(terminal) {
     fetch(url)
         .then(function(response) { return response.json(); })
         .then(function(routes) {
+            if (isTrackingActive) {
+                console.log('Tracking se activó durante la carga, ignorando resultados');
+                return;
+            }
+            
             if (countEl) countEl.textContent = routes.length + ' routes';
             if (!routes || routes.length === 0) {
                 container.innerHTML = '<p class="no-routes-msg">Sin rutas disponibles</p>';
@@ -449,7 +640,10 @@ function loadRoutes(terminal) {
                 });
                 container.appendChild(sq);
             });
-            drawTerminalRoutes(routes);
+            
+            if (!isTrackingActive) {
+                drawTerminalRoutes(routes);
+            }
         })
         .catch(function(error) {
             console.error('Error al cargar rutas:', error);
@@ -486,6 +680,7 @@ function renderNewTracking() {
     clearMap();
     var color = document.getElementById('routeColor').value;
     var loadingMsg = L.popup().setLatLng(mapInstance.getCenter()).setContent('Cargando coordenadas...').openOn(mapInstance);
+    
     loadRouteCoordinates(selectedRoute.id, selectedDirection)
         .then(function(coords) {
             if (loadingMsg) mapInstance.closePopup(loadingMsg);
@@ -495,12 +690,26 @@ function renderNewTracking() {
             }
             currentCoords = coords;
             currentPointIndex = 0;
-            var busIcon = L.divIcon({ html: '<i class="fas fa-bus"></i>', className: 'bus-icon-div', iconSize: [35, 35], iconAnchor: [17, 17] });
+            
+            var busIcon = L.divIcon({ 
+                html: '<div class="bus-marker-wrapper"><i class="fas fa-bus"></i><div class="bus-pulse"></div></div>', 
+                className: 'custom-bus-marker', 
+                iconSize: [40, 40], 
+                iconAnchor: [20, 20] 
+            });
             var destIcon = L.divIcon({ html: '<i class="fas fa-flag-checkered"></i>', className: 'dest-icon-div', iconSize: [30, 30], iconAnchor: [15, 30] });
-            rutaLine = L.polyline(coords, { color: color, weight: 5, opacity: 0.8, dashArray: '8, 12' }).addTo(mapInstance);
+            
+            rutaLine = L.polyline(coords, { color: color, weight: 5, opacity: 0.8 }).addTo(mapInstance);
             destMarker = L.marker(coords[coords.length - 1], { icon: destIcon }).addTo(mapInstance);
             busMarker = L.marker(coords[0], { icon: busIcon }).addTo(mapInstance);
+            
             mapInstance.fitBounds(rutaLine.getBounds(), { padding: [40, 40] });
+            
+            // GUARDAR POSICIÓN INICIAL EN LA BD
+            var latInicial = coords[0][0];
+            var lngInicial = coords[0][1];
+            guardarPosicionReal(latInicial, lngInicial);
+            
             if (animationInterval) clearInterval(animationInterval);
             animationInterval = setInterval(function() {
                 if (currentPointIndex < currentCoords.length - 1) {
@@ -508,16 +717,17 @@ function renderNewTracking() {
                     var lat = currentCoords[currentPointIndex][0];
                     var lng = currentCoords[currentPointIndex][1];
                     busMarker.setLatLng([lat, lng]);
+                    
+                    // Guardar posición actual en cada movimiento
+                    guardarPosicionReal(lat, lng);
                     saveTrackingToDatabase(lat, lng, currentPointIndex, currentCoords.length);
+                    
                     if (currentPointIndex % 5 === 0 || currentPointIndex === currentCoords.length - 1) {
                         saveTrackingState();
                     }
                 } else {
                     clearInterval(animationInterval);
                     animationInterval = null;
-                    var lastLat = currentCoords[currentCoords.length - 1][0];
-                    var lastLng = currentCoords[currentCoords.length - 1][1];
-                    saveTrackingToDatabase(lastLat, lastLng, currentCoords.length - 1, currentCoords.length);
                 }
             }, animationSpeed);
             saveTrackingState();
@@ -539,6 +749,7 @@ function resumeAnimation() {
             var lat = currentCoords[currentPointIndex][0];
             var lng = currentCoords[currentPointIndex][1];
             busMarker.setLatLng([lat, lng]);
+            guardarPosicionReal(lat, lng);
             saveTrackingToDatabase(lat, lng, currentPointIndex, currentCoords.length);
             if (currentPointIndex % 5 === 0 || currentPointIndex === currentCoords.length - 1) {
                 saveTrackingState();
@@ -560,9 +771,14 @@ function restoreTracking() {
             if (!coords || coords.length === 0) return;
             currentCoords = coords;
             if (currentPointIndex >= coords.length) currentPointIndex = coords.length - 1;
-            var busIcon = L.divIcon({ html: '<i class="fas fa-bus"></i>', className: 'bus-icon-div', iconSize: [35, 35], iconAnchor: [17, 17] });
+            var busIcon = L.divIcon({ 
+                html: '<div class="bus-marker-wrapper"><i class="fas fa-bus"></i><div class="bus-pulse"></div></div>', 
+                className: 'custom-bus-marker', 
+                iconSize: [40, 40], 
+                iconAnchor: [20, 20] 
+            });
             var destIcon = L.divIcon({ html: '<i class="fas fa-flag-checkered"></i>', className: 'dest-icon-div', iconSize: [30, 30], iconAnchor: [15, 30] });
-            rutaLine = L.polyline(coords, { color: color, weight: 5, opacity: 0.8, dashArray: '8, 12' }).addTo(mapInstance);
+            rutaLine = L.polyline(coords, { color: color, weight: 5, opacity: 0.8 }).addTo(mapInstance);
             destMarker = L.marker(coords[coords.length - 1], { icon: destIcon }).addTo(mapInstance);
             busMarker = L.marker(coords[currentPointIndex], { icon: busIcon }).addTo(mapInstance);
             mapInstance.fitBounds(rutaLine.getBounds(), { padding: [40, 40] });
@@ -575,9 +791,14 @@ function restoreTracking() {
         });
 }
 
+// =====================================================
+// FUNCIÓN PRINCIPAL START NEW TRACKING
+// =====================================================
+
 function startNewTracking() {
     if (!selectedRoute || !selectedDirection) return;
     if (isTrackingActive) return;
+    
     var termVal = $('#terminalSelect').val();
     var terminalDisplay = terminalDisplayNames[termVal] || termVal;
     document.getElementById('liveTerminalName').textContent = terminalDisplay;
@@ -588,12 +809,112 @@ function startNewTracking() {
     document.getElementById('statusDot').classList.add('active');
     document.getElementById('statusText').textContent = 'Live Tracking';
     document.getElementById('statusPillContainer').style.borderColor = '#2ecc71';
-    iniciarChat();
+    
+    iniciarChatLocal();
+    iniciarGeolocalizacionReal();
+    iniciarChatCentralizado();
+    
     currentPointIndex = 0;
     lastSavedIndex = 0;
     isTrackingActive = true;
     renderNewTracking();
 }
+
+// =====================================================
+// FUNCIÓN PRINCIPAL FINISH TRACKING
+// =====================================================
+
+function finishTracking() {
+    console.log('Finalizando tracking...');
+    
+    // Detener geolocalización
+    if (watchPositionId) {
+        navigator.geolocation.clearWatch(watchPositionId);
+        watchPositionId = null;
+    }
+    
+    // Detener polling de chat centralizado
+    if (chatPollingInterval) {
+        clearInterval(chatPollingInterval);
+        chatPollingInterval = null;
+    }
+    
+    // Limpiar tracking activo de la base de datos
+    if (selectedRoute) {
+        console.log('Limpiando tracking de la BD para ruta:', selectedRoute.id);
+        fetch('/TRACKING_TERMINAL/api/get_active_tracking.php', {
+            method: 'DELETE'
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            console.log('Tracking limpiado correctamente:', result);
+        })
+        .catch(function(error) {
+            console.error('Error limpiando tracking:', error);
+        });
+    }
+    
+    // Finalizar chat local
+    finalizarChatLocal();
+    
+    // Limpiar animación
+    if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+    }
+    
+    // Limpiar estado
+    clearTrackingState();
+    isTrackingActive = false;
+    selectedRoute = null;
+    selectedDirection = null;
+    selectedRouteId = null;
+    currentPointIndex = 0;
+    lastSavedIndex = 0;
+    currentCoords = [];
+    
+    // Cambiar UI
+    var livePanel = document.getElementById('trackingLivePanel');
+    var configPanel = document.getElementById('trackingConfigPanel');
+    if (livePanel) livePanel.style.display = 'none';
+    if (configPanel) configPanel.style.display = 'block';
+    
+    var statusDot = document.getElementById('statusDot');
+    var statusText = document.getElementById('statusText');
+    var statusPill = document.getElementById('statusPillContainer');
+    if (statusDot) statusDot.classList.remove('active');
+    if (statusText) statusText.textContent = 'Inactive Tracking';
+    if (statusPill) statusPill.style.borderColor = '';
+    
+    // Limpiar mapa
+    clearMap();
+    
+    // Limpiar selecciones
+    var routeSquares = document.querySelectorAll('.route-square');
+    routeSquares.forEach(function(el) { el.classList.remove('active'); });
+    
+    var directionPanel = document.getElementById('directionPanel');
+    var routeInfo = document.getElementById('routeInfo');
+    if (directionPanel) directionPanel.style.display = 'none';
+    if (routeInfo) routeInfo.style.display = 'none';
+    
+    var directionBtns = document.querySelectorAll('.direction-btn');
+    directionBtns.forEach(function(btn) { btn.classList.remove('active'); });
+    
+    var startBtn = document.getElementById('startTrackingBtn');
+    if (startBtn) startBtn.disabled = true;
+    
+    // Recargar rutas de la terminal actual
+    var currentTerminal = $('#terminalSelect').val();
+    if (currentTerminal && typeof loadRoutes === 'function') {
+        loadRoutes(currentTerminal);
+    }
+    
+    console.log('Tracking finalizado completamente');
+}
+// =====================================================
+// FUNCIONES DE ESTADO
+// =====================================================
 
 function saveTrackingState() {
     if (!isTrackingActive || !selectedRoute) {
@@ -621,32 +942,6 @@ function clearTrackingState() {
     localStorage.removeItem('busito_tracking_state');
     isTrackingActive = false;
 }
-
-window.finishTracking = function() {
-    finalizarChat();
-    if (animationInterval) clearInterval(animationInterval);
-    clearTrackingState();
-    isTrackingActive = false;
-    selectedRoute = null;
-    selectedDirection = null;
-    selectedRouteId = null;
-    currentPointIndex = 0;
-    lastSavedIndex = 0;
-    currentCoords = [];
-    document.getElementById('trackingLivePanel').style.display = 'none';
-    document.getElementById('trackingConfigPanel').style.display = 'block';
-    document.getElementById('statusDot').classList.remove('active');
-    document.getElementById('statusText').textContent = 'Inactive Tracking';
-    document.getElementById('statusPillContainer').style.borderColor = '';
-    clearMap();
-    document.querySelectorAll('.route-square').forEach(function(el) { el.classList.remove('active'); });
-    document.getElementById('directionPanel').style.display = 'none';
-    document.getElementById('routeInfo').style.display = 'none';
-    document.querySelectorAll('.direction-btn').forEach(function(btn) { btn.classList.remove('active'); });
-    document.getElementById('startTrackingBtn').disabled = true;
-    var currentTerminal = $('#terminalSelect').val();
-    if (currentTerminal) loadRoutes(currentTerminal);
-};
 
 function loadTrackingState() {
     var isActive = localStorage.getItem('busito_tracking_active');
@@ -695,6 +990,10 @@ function loadTrackingState() {
     }
 }
 
+// =====================================================
+// INICIALIZACIÓN DE BOTONES Y SELECTS
+// =====================================================
+
 function initDirectionButtons() {
     var directionBtns = document.querySelectorAll('.direction-btn');
     var startBtn = document.getElementById('startTrackingBtn');
@@ -732,6 +1031,7 @@ function initSelect2() {
             return terminalDisplayNames[data.id] || data.text;
         }
     });
+    
     function updateSelectHighlight() {
         var currentVal = $terminalSelect.val();
         var $selection = $terminalSelect.next('.select2').find('.select2-selection--single');
@@ -744,25 +1044,39 @@ function initSelect2() {
             $selection.removeClass('select-has-value');
         }
     }
+    
     $terminalSelect.on('select2:select', function(e) { updateSelectHighlight(); });
+    
     $terminalSelect.off('change').on('change', function() {
         var val = $(this).val();
         updateSelectHighlight();
-        if (val && !isTrackingActive) loadRoutes(val);
+        if (val && !isTrackingActive) {
+            loadRoutes(val);
+        } else if (val && isTrackingActive) {
+            console.log('Tracking activo, cambio de terminal ignorado');
+        }
     });
+    
     updateSelectHighlight();
 }
+
+// =====================================================
+// SISTEMA PRINCIPAL DE INICIALIZACIÓN
+// =====================================================
 
 function initTrackingSystem() {
     if (isInitialized) return;
     console.log('Inicializando sistema...');
+    
     if (!mapInstance) {
         mapInstance = L.map('map-tracking', { zoomControl: false }).setView([13.6929, -89.2182], 8);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CartoDB'
         }).addTo(mapInstance);
     }
+    
     initSelect2();
+    
     document.getElementById('routeColor').addEventListener('input', function() {
         if (selectedRoute && selectedDirection && rutaLine && !isTrackingActive) {
             rutaLine.setStyle({ color: this.value });
@@ -774,13 +1088,16 @@ function initTrackingSystem() {
             }
         }
     });
+    
     var gpsInfoBtn = document.getElementById('gpsInfoBtn');
     if (gpsInfoBtn) {
         gpsInfoBtn.addEventListener('click', function() {
-            showToast('Ubicación GPS', 'Esta página usa ubicación GPS para mostrar las rutas y los puntos de origen y destino en el mapa. Asegúrate de dar permisos de ubicación si tu navegador lo solicita.');
+            showToast('Ubicación GPS', 'Esta página usa ubicación GPS para mostrar las rutas y los puntos de origen y destino en el mapa.');
         });
     }
+    
     document.getElementById('startTrackingBtn').addEventListener('click', startNewTracking);
+    
     function showToast(title, message) {
         var existing = document.getElementById('notificationToast');
         if (existing) existing.remove();
@@ -798,7 +1115,9 @@ function initTrackingSystem() {
             if (toast.parentNode) toast.remove();
         }, 7000);
     }
-    document.getElementById('finishTrackingBtn').addEventListener('click', function() { window.finishTracking(); });
+    
+    document.getElementById('finishTrackingBtn').addEventListener('click', function() { finishTracking(); });
+    
     var layout = document.getElementById('adminLayout');
     var toggleBtn = document.getElementById('toggleSidebar');
     var openBtn = document.getElementById('openSidebar');
@@ -814,30 +1133,68 @@ function initTrackingSystem() {
             if (openBtn) openBtn.style.display = 'none';
         });
     }
+    
     var chatInput = document.getElementById('chatInput');
     var sendBtn = document.getElementById('sendMessageBtn');
     if (sendBtn) {
-        sendBtn.addEventListener('click', function() { enviarMensaje(); });
+        sendBtn.addEventListener('click', function() { 
+            if (isTrackingActive) {
+                enviarMensajeCentralizado();
+            } else {
+                enviarMensajeLocal();
+            }
+        });
     }
     if (chatInput) {
-        chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') enviarMensaje(); });
+        chatInput.addEventListener('keydown', function(e) { 
+            if (e.key === 'Enter') {
+                if (isTrackingActive) {
+                    enviarMensajeCentralizado();
+                } else {
+                    enviarMensajeLocal();
+                }
+            }
+        });
     }
+    
     function updateClock() {
         var clockEl = document.getElementById('liveClock');
         if (clockEl) clockEl.innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     setInterval(updateClock, 1000);
     updateClock();
+    
     initDirectionButtons();
+    
     var restored = loadTrackingState();
+    
     if (!restored) {
         document.getElementById('routesContainer').innerHTML = '<p class="no-routes-msg">Selecciona una terminal para ver las rutas</p>';
         document.getElementById('routeCount').textContent = '0 routes';
+        
+        var currentTerminal = $('#terminalSelect').val();
+        if (currentTerminal && currentTerminal !== "") {
+            loadRoutes(currentTerminal);
+        }
+    } else {
+        console.log('Tracking activo restaurado, evitando carga automática de rutas');
+        var startBtn = document.getElementById('startTrackingBtn');
+        if (startBtn) startBtn.disabled = true;
+        var directionPanel = document.getElementById('directionPanel');
+        if (directionPanel) directionPanel.style.display = 'none';
     }
-    window.addEventListener('beforeunload', function() { if (isTrackingActive) saveTrackingState(); });
+    
+    window.addEventListener('beforeunload', function() { 
+        if (isTrackingActive) saveTrackingState(); 
+    });
+    
     isInitialized = true;
-    console.log('Sistema listo');
+    console.log('Sistema listo - Tracking activo:', isTrackingActive);
 }
+
+// =====================================================
+// INICIALIZACIÓN
+// =====================================================
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTrackingSystem);
