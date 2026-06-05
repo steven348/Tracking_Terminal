@@ -8,7 +8,7 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Busito SV - Panel de Tracking</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -163,59 +163,114 @@ $(document).ready(function() {
         $('#infoModal').addClass('show');
     });
 
-    // Cerrar haciendo clic en la 'X'
     $('#closeInfoModalBtn').on('click', function() {
         $('#infoModal').removeClass('show');
     });
 
-    // Cerrar al hacer clic fuera del cuadro de diálogo
     $('#infoModal').on('click', function(e) {
         if ($(e.target).is('.info-modal-overlay')) {
             $(this).removeClass('show');
         }
     });
 
-    /* ===========================================================
-       CONTROL DE MODAL DE CONFIRMACIÓN (INTERCEPCIÓN)
-       =========================================================== */
     var trackingConfirmado = false;
 
-    // Usamos addEventListener Nativo con 'true' para activar la Fase de Captura.
-    // Esto congela el evento ANTES de que jQuery y 'realizar_tracking.js' se enteren.
     document.getElementById('finishTrackingBtn').addEventListener('click', function(event) {
         if (!trackingConfirmado) {
             event.preventDefault();
             event.stopPropagation();
-            event.stopImmediatePropagation(); // Frena en seco scripts externos
-            
+            event.stopImmediatePropagation();
             $('#confirmFinishModal').addClass('show');
         } else {
-            // Si ya se confirmó, permitimos el flujo original y reiniciamos bandera
             trackingConfirmado = false;
         }
     }, true);
 
-    // Botón Cancelar dentro del modal
     $('#cancelFinishBtn, #closeConfirmFinishModalBtn').on('click', function() {
         $('#confirmFinishModal').removeClass('show');
     });
 
-    // Cerrar haciendo clic fuera de la tarjeta
     $('#confirmFinishModal').on('click', function(e) {
         if ($(e.target).is('.info-modal-overlay')) {
             $(this).removeClass('show');
         }
     });
 
-    // Botón Confirmar ("Sí, Finalizar") dentro del modal
     $('#executeFinishBtn').on('click', function() {
         trackingConfirmado = true;
         $('#confirmFinishModal').removeClass('show');
-        // Disparamos el click real de manera programática, ahora sí pasará el filtro
         document.getElementById('finishTrackingBtn').click();
     });
+
+    // =====================================================
+    // CONTROL DEL SIDEBAR RESPONSIVE
+    // =====================================================
+    var $adminSidebar = $('#adminSidebar');
+    var $openSidebarBtn = $('#openSidebar');
+    var $toggleSidebarBtn = $('#toggleSidebar');
+    var $adminLayout = $('#adminLayout');
+    
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+    
+    function updateSidebarState() {
+        if (isMobile()) {
+            $adminSidebar.removeClass('show');
+            $openSidebarBtn.show();
+            $toggleSidebarBtn.hide();
+            $adminLayout.removeClass('sidebar-hidden');
+        } else {
+            $adminSidebar.removeClass('show');
+            $openSidebarBtn.hide();
+            $toggleSidebarBtn.show();
+        }
+    }
+    
+    $openSidebarBtn.on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $adminSidebar.addClass('show');
+        $(this).hide();
+    });
+    
+    $toggleSidebarBtn.on('click', function(e) {
+        e.preventDefault();
+        if (!isMobile()) {
+            $adminLayout.toggleClass('sidebar-hidden');
+        } else {
+            $adminSidebar.removeClass('show');
+            $openSidebarBtn.show();
+        }
+    });
+    
+    $(document).on('click', function(e) {
+        if (isMobile() && $adminSidebar.hasClass('show')) {
+            if (!$adminSidebar.is(e.target) && $adminSidebar.has(e.target).length === 0 && !$openSidebarBtn.is(e.target)) {
+                $adminSidebar.removeClass('show');
+                $openSidebarBtn.show();
+            }
+        }
+    });
+    
+    $(window).on('resize', function() {
+        updateSidebarState();
+        if (typeof mapInstance !== 'undefined' && mapInstance) {
+            setTimeout(function() { mapInstance.invalidateSize(); }, 300);
+        }
+    });
+    
+    $('#map-tracking').on('click', function() {
+        if (isMobile() && $adminSidebar.hasClass('show')) {
+            $adminSidebar.removeClass('show');
+            $openSidebarBtn.show();
+        }
+    });
+    
+    updateSidebarState();
 });
 </script>
+
 <script src="/TRACKING_TERMINAL/assets/js/realizar_tracking.js"></script>
 </body>
 </html>

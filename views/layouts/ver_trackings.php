@@ -168,7 +168,7 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
         }
 
         /* =====================================================
-           GRID DE RUTAS - 6 COLUMNAS HORIZONTALES
+           GRID DE RUTAS - RESPONSIVE
         ===================================================== */
         .routes-grid-layout {
             width: 100%;
@@ -216,38 +216,8 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
             box-shadow: 0 4px 12px rgba(0, 194, 199, 0.3);
         }
 
-        @media (max-width: 1200px) {
-            .routes-grid-wrapper {
-                grid-template-columns: repeat(5, 1fr) !important;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .routes-grid-wrapper {
-                grid-template-columns: repeat(4, 1fr) !important;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .routes-grid-wrapper {
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 8px !important;
-            }
-            .route-square {
-                padding: 8px 4px !important;
-                font-size: 0.7rem !important;
-                min-height: 45px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .routes-grid-wrapper {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-        }
-
         /* =====================================================
-           MAPA Y SIDEBAR - ESTILOS CRÍTICOS
+           MAPA Y SIDEBAR
         ===================================================== */
         #trackingMapView {
             position: fixed;
@@ -260,7 +230,7 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
             display: none;
         }
 
-        #trackingMapView.active, #trackingMapView[style*="display: block"], #trackingMapView[style*="display: flex"] {
+        #trackingMapView.active {
             display: flex !important;
         }
 
@@ -883,7 +853,6 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
             margin-bottom: 10px;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -901,61 +870,251 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
             background: #00f3ff;
         }
 
-        /* Responsive */
+        /* =====================================================
+           RESPONSIVE - MÓVIL
+        ===================================================== */
+        
+        @media (max-width: 992px) {
+            .routes-grid-wrapper {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .split-workspace {
-                flex-direction: column;
+                flex-direction: column !important;
+                height: auto !important;
             }
             
-            .left-workspace, .right-workspace {
-                flex: auto;
+            .left-workspace {
+                flex: none !important;
+                padding: 16px !important;
+                max-height: 50vh !important;
+                overflow-y: auto !important;
             }
             
             .right-workspace {
-                border-left: none;
-                border-top: 1px solid #1a3449;
+                flex: none !important;
+                border-left: none !important;
+                border-top: 1px solid #1a3449 !important;
+                padding: 16px !important;
+                max-height: 50vh !important;
+                overflow-y: auto !important;
+            }
+            
+            .workspace-title {
+                font-size: 1.2rem !important;
+                margin-bottom: 16px !important;
+            }
+            
+            .departments-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+            
+            .card-thumbnail {
+                height: 100px !important;
+            }
+            
+            .card-title {
+                font-size: 0.85rem !important;
+            }
+            
+            .routes-grid-wrapper {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+            
+            .route-square {
+                padding: 8px 4px !important;
+                font-size: 0.7rem !important;
+                min-height: 45px !important;
+            }
+            
+            .top-nav {
+                padding: 8px 16px !important;
+            }
+            
+            .top-nav .logo {
+                font-size: 1.1rem !important;
+            }
+            
+            .top-nav .nav-icons a {
+                font-size: 1rem !important;
             }
             
             .admin-sidebar {
-                position: absolute;
-                transform: translateX(-100%);
-                width: 85%;
-                z-index: 150;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 280px !important;
+                height: 100vh !important;
+                z-index: 2000 !important;
+                transform: translateX(-100%) !important;
+                transition: transform 0.3s ease !important;
+                box-shadow: none !important;
             }
             
             .admin-sidebar.show {
-                transform: translateX(0);
-                box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-            }
-            
-            .map-viewport {
-                width: 100% !important;
-                min-width: auto;
+                transform: translateX(0) !important;
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5) !important;
             }
             
             .btn-open-sidebar {
                 display: flex !important;
+                position: fixed !important;
+                top: 70px !important;
+                left: 12px !important;
+                z-index: 1000 !important;
+                width: 40px !important;
+                height: 40px !important;
+                background: rgba(17, 35, 49, 0.95) !important;
+                border: 1px solid #00f3ff !important;
+                border-radius: 50% !important;
+                color: #00f3ff !important;
+                font-size: 1rem !important;
+                backdrop-filter: blur(8px) !important;
             }
             
-            .departments-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            .btn-toggle-sidebar {
+                display: none !important;
             }
             
-            #liveMapContainer, #map-tracking-engine {
-                min-height: 400px !important;
+            .sidebar-header {
+                padding: 12px !important;
+            }
+            
+            .sidebar-header .logo {
+                font-size: 1rem !important;
+            }
+            
+            .live-tracking-panel {
+                padding: 12px !important;
+                gap: 12px !important;
+            }
+            
+            .live-stats {
+                gap: 8px !important;
+            }
+            
+            .live-card {
+                padding: 10px !important;
+            }
+            
+            .live-card-value {
+                font-size: 0.9rem !important;
+            }
+            
+            .chat-box {
+                height: 220px !important;
+            }
+            
+            .map-viewport {
+                width: 100% !important;
+                min-width: auto !important;
+            }
+            
+            .map-overlay-top {
+                top: 12px !important;
+                left: 12px !important;
+                gap: 8px !important;
+            }
+            
+            .status-pill, .time-pill {
+                padding: 6px 12px !important;
+                font-size: 0.7rem !important;
+            }
+            
+            .modal-card {
+                padding: 20px !important;
+                margin: 16px !important;
+            }
+            
+            .modal-heading {
+                font-size: 1.1rem !important;
+            }
+            
+            .modal-description {
+                font-size: 0.8rem !important;
+            }
+            
+            .btn-modal {
+                padding: 8px 16px !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .bus-marker-wrapper {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 16px !important;
+            }
+            
+            .user-location-marker {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            
+            .user-avatar {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 14px !important;
+            }
+            
+            .bus-label-tooltip, .user-label {
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+                top: -28px !important;
             }
         }
-
+        
         @media (max-width: 480px) {
+            .departments-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+            
+            .routes-grid-wrapper {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
             .admin-sidebar {
-                width: 100%;
+                width: 100% !important;
             }
             
             .btn-open-sidebar {
-                left: 8px;
-                top: 8px;
-                padding: 8px 12px;
-                font-size: 1rem;
+                top: 65px !important;
+                left: 10px !important;
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .chat-box {
+                height: 200px !important;
+            }
+            
+            .chat-bubble {
+                font-size: 0.7rem !important;
+                padding: 6px 10px !important;
+            }
+        }
+        
+        @media (max-width: 768px) and (orientation: landscape) {
+            .admin-sidebar {
+                width: 260px !important;
+            }
+            
+            .chat-box {
+                height: 180px !important;
+            }
+            
+            .live-stats {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            .left-workspace, .right-workspace {
+                max-height: 60vh !important;
             }
         }
     </style>
@@ -977,7 +1136,7 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
     <!-- Vista de Departamentos -->
     <div id="departmentsView" class="view-segment">
         <div class="split-workspace">
-            <section class="left-workspace">
+            <section class="left-workspace" style="overflow-y: auto;">
                 <h2 class="workspace-title">
                     <i class="fas fa-map-marked-alt"></i>
                     Departamentos de El Salvador
@@ -987,11 +1146,11 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
                 </div>
             </section>
 
-            <aside class="right-workspace" style="padding: 20px;">
+            <aside class="right-workspace" style="padding: 20px; overflow-y: auto;">
                 <div class="list-header" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <span class="text-white" id="selectedDeptTitle" style="font-weight:700; font-size:1.1rem; text-transform: uppercase; letter-spacing: 0.5px;">RUTAS DISPONIBLES</span>
                 </div>
-                <div id="routesContainer" class="routes-grid-layout" style="width: 100%;">
+                <div id="routesContainer" class="routes-grid-layout" style="width: 100%; overflow-y: auto;">
                     <div class="empty-state-container">
                         <div class="info-circle-icon">
                             <i class="fas fa-info-circle"></i>
@@ -1095,6 +1254,76 @@ $usuario_avatar = substr($usuario_nombre, 0, 1);
             nombre: '<?php echo addslashes($usuario_nombre); ?>',
             avatar: '<?php echo $usuario_avatar; ?>'
         };
+    </script>
+    
+    <script>
+    $(document).ready(function() {
+        // Control del sidebar responsive para ver_tracking
+        var $adminSidebar = $('#adminSidebar');
+        var $openSidebarBtn = $('#openSidebar');
+        var $toggleSidebarBtn = $('#toggleSidebar');
+        
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+        
+        function updateSidebarState() {
+            if (isMobile()) {
+                $adminSidebar.removeClass('show');
+                $openSidebarBtn.show();
+                $toggleSidebarBtn.hide();
+            } else {
+                $adminSidebar.removeClass('show');
+                $openSidebarBtn.hide();
+                $toggleSidebarBtn.show();
+            }
+        }
+        
+        $openSidebarBtn.on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $adminSidebar.addClass('show');
+            $(this).hide();
+        });
+        
+        $toggleSidebarBtn.on('click', function(e) {
+            e.preventDefault();
+            if (!isMobile()) {
+                $('#trackingMapView').toggleClass('sidebar-hidden');
+            } else {
+                $adminSidebar.removeClass('show');
+                $openSidebarBtn.show();
+            }
+        });
+        
+        $(document).on('click', function(e) {
+            if (isMobile() && $adminSidebar.hasClass('show')) {
+                if (!$adminSidebar.is(e.target) && $adminSidebar.has(e.target).length === 0 && !$openSidebarBtn.is(e.target)) {
+                    $adminSidebar.removeClass('show');
+                    $openSidebarBtn.show();
+                }
+            }
+        });
+        
+        $(window).on('resize', function() {
+            updateSidebarState();
+            if (typeof mapaInstance !== 'undefined' && mapaInstance) {
+                setTimeout(function() { mapaInstance.invalidateSize(); }, 300);
+            }
+        });
+        
+        updateSidebarState();
+        
+        $(document).on('click', '#map-tracking-engine', function() {
+            if (isMobile() && $adminSidebar.hasClass('show')) {
+                $adminSidebar.removeClass('show');
+                $openSidebarBtn.show();
+            }
+        });
+        
+        // Asegurar scroll en contenedores
+        $('.right-workspace, .left-workspace, #routesContainer').css('overflow-y', 'auto');
+    });
     </script>
     
     <script src="/TRACKING_TERMINAL/assets/js/ver_tracking.js"></script>
